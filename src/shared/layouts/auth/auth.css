@@ -79,6 +79,21 @@
   color: var(--auth-muted);
 }
 
+.auth-copy {
+  animation: auth-copy-enter 280ms ease both;
+}
+
+@keyframes auth-copy-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 .auth-headline {
   margin: 0 0 1rem;
   max-width: 14ch;

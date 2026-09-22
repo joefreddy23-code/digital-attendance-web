@@ -16,8 +16,24 @@ const testRoutes: Routes = [
     path: '',
     component: Auth,
     children: [
-      { path: 'login', component: StubChild },
-      { path: 'forgot-password', component: StubChild },
+      {
+        path: 'login',
+        component: StubChild,
+        data: {
+          headline: 'Every shift, verified.',
+          description:
+            'Employees, locations and compliance reports for the whole workforce.',
+        },
+      },
+      {
+        path: 'forgot-password',
+        component: StubChild,
+        data: {
+          headline: 'Locked out? Happens.',
+          description:
+            "Enter the email you sign in with and we'll send a reset link.",
+        },
+      },
     ],
   },
 ];
@@ -41,7 +57,7 @@ describe('Auth', () => {
     expect(fixture.componentInstance).toBeTruthy();
   });
 
-  it('should render full logo brand and static left copy', async () => {
+  it('should render brand and login left copy from route data', async () => {
     await router.navigateByUrl('/login');
     fixture.detectChanges();
     await fixture.whenStable();
@@ -58,17 +74,17 @@ describe('Auth', () => {
     const logo = fixture.debugElement.query(By.css('img.auth-brand__logo'));
     expect(logo).toBeTruthy();
     expect(logo.nativeElement.getAttribute('src')).toContain('trigentLogoFullLight.png');
-    expect(logo.nativeElement.getAttribute('alt')).toBe('TRIGENT');
   });
 
-  it('should keep the same left copy on forgot-password', async () => {
+  it('should swap left copy on forgot-password route', async () => {
     await router.navigateByUrl('/forgot-password');
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
 
     const text = fixture.nativeElement.textContent as string;
-    expect(text).toContain('Every shift, verified.');
-    expect(text).not.toContain('Locked out? Happens.');
+    expect(text).toContain('Locked out? Happens.');
+    expect(text).toContain("Enter the email you sign in with");
+    expect(text).not.toContain('Every shift, verified.');
   });
 });

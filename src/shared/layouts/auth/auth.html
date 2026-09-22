@@ -14,10 +14,12 @@
           <p class="auth-brand__tagline">Attendance &amp; Compliance · Admin portal</p>
         </div>
 
-        <h1 class="auth-headline">Every shift, verified.</h1>
-        <p class="auth-description">
-          Employees, locations and compliance reports for the whole workforce.
-        </p>
+        @for (copy of [{ headline: headline(), description: description() }]; track copy.headline) {
+          <div class="auth-copy">
+            <h1 class="auth-headline">{{ copy.headline }}</h1>
+            <p class="auth-description">{{ copy.description }}</p>
+          </div>
+        }
 
         <ul class="auth-features list-unstyled mb-0">
           @for (feature of features; track feature.title) {
