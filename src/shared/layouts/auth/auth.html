@@ -1,0 +1,45 @@
+<div class="auth-shell">
+  <div class="auth-shell__glow auth-shell__glow--cool" aria-hidden="true"></div>
+  <div class="auth-shell__glow auth-shell__glow--warm" aria-hidden="true"></div>
+
+  <div class="container auth-shell__content">
+    <div class="row align-items-center g-4 g-lg-5 min-vh-100 py-4 py-lg-0">
+      <div class="col-12 col-lg-7">
+        <div class="auth-brand mb-4">
+          <img
+            class="auth-brand__icon"
+            src="trigentLogoIcon.png"
+            alt=""
+            width="40"
+            height="40"
+          />
+          <div class="auth-brand__text">
+            <div class="auth-brand__name">TRIGENT</div>
+            <div class="auth-brand__tagline">Attendance &amp; Compliance · Admin portal</div>
+          </div>
+        </div>
+
+        <h1 class="auth-headline">{{ headline() }}</h1>
+        <p class="auth-description">{{ description() }}</p>
+
+        <ul class="auth-features list-unstyled mb-0">
+          @for (feature of features; track feature.title) {
+            <li class="auth-features__item">
+              <span class="auth-features__icon" [attr.data-icon]="feature.icon" aria-hidden="true"></span>
+              <span class="auth-features__copy">
+                <strong>{{ feature.title }}</strong>
+                — {{ feature.detail }}
+              </span>
+            </li>
+          }
+        </ul>
+      </div>
+
+      <div class="col-12 col-lg-5 d-flex justify-content-lg-end">
+        <div class="auth-outlet w-100">
+          <router-outlet />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
