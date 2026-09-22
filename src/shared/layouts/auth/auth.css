@@ -61,30 +61,15 @@
   gap: 0.45rem;
 }
 
-.auth-brand__lockup {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.auth-brand__mark {
+.auth-brand__logo {
   display: block;
-  width: 40px;
-  height: 40px;
-  border-radius: 6px;
-  object-fit: cover;
+  height: clamp(2.25rem, 4vw, 2.75rem);
+  width: auto;
+  max-width: min(100%, 280px);
+  object-fit: contain;
   object-position: left center;
-  flex-shrink: 0;
-  /* Full logo asset includes navy wordmark on black — crop to the amber mark only */
-}
-
-.auth-brand__name {
-  font-family: 'DM Sans', system-ui, sans-serif;
-  font-size: 1.65rem;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  line-height: 1;
-  color: #ffffff;
+  /* Drop the asset's black plate on the navy shell; white wordmark + amber mark remain */
+  mix-blend-mode: lighten;
 }
 
 .auth-brand__tagline {
