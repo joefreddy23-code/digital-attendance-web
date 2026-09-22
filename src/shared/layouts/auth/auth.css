@@ -58,19 +58,33 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.55rem;
+  gap: 0.45rem;
 }
 
-.auth-brand__logo {
+.auth-brand__lockup {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.auth-brand__mark {
   display: block;
-  height: clamp(2.25rem, 4vw, 2.75rem);
-  width: auto;
-  max-width: min(100%, 280px);
-  object-fit: contain;
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: cover;
   object-position: left center;
-  /* Black plate drops out; brighten navy wordmark for the blue shell */
-  mix-blend-mode: lighten;
-  filter: brightness(1.85) contrast(1.05);
+  flex-shrink: 0;
+  /* Full logo asset includes navy wordmark on black — crop to the amber mark only */
+}
+
+.auth-brand__name {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 1.65rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  line-height: 1;
+  color: #ffffff;
 }
 
 .auth-brand__tagline {

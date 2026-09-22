@@ -55,9 +55,10 @@ describe('Auth', () => {
     expect(text).toContain('Locations');
     expect(text).toContain('Reports');
 
-    const logo = fixture.debugElement.query(By.css('img.auth-brand__logo'));
+    const logo = fixture.debugElement.query(By.css('img.auth-brand__mark'));
     expect(logo).toBeTruthy();
     expect(logo.nativeElement.getAttribute('src')).toContain('trigentLogoFull.png');
+    expect(text).toContain('TRIGENT');
   });
 
   it('should keep the same left copy on forgot-password', async () => {
