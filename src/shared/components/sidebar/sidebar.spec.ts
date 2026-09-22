@@ -29,6 +29,7 @@ describe('Sidebar', () => {
   it('should show labels when expanded and hide when collapsed', () => {
     expect(fixture.nativeElement.classList.contains('sidebar--collapsed')).toBeFalse();
     expect(fixture.nativeElement.textContent).toContain('Overview');
+    expect(fixture.nativeElement.textContent).toContain('Attendance & Compliance');
 
     const expandedLogo = fixture.debugElement.query(By.css('img.sidebar__logo--full'));
     expect(expandedLogo).toBeTruthy();
@@ -40,6 +41,7 @@ describe('Sidebar', () => {
     expect(fixture.nativeElement.classList.contains('sidebar--collapsed')).toBeTrue();
     const labels = fixture.debugElement.queryAll(By.css('.sidebar__label'));
     expect(labels.length).toBe(0);
+    expect(fixture.nativeElement.textContent).not.toContain('Attendance & Compliance');
 
     const collapsedLogo = fixture.debugElement.query(By.css('img.sidebar__logo--half'));
     expect(collapsedLogo).toBeTruthy();
