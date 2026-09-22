@@ -1,0 +1,36 @@
+<div class="sidebar__brand">
+  <img class="sidebar__mark" src="trigentLogoIcon.png" alt="" width="36" height="36" />
+  @if (layout.sidebarExpanded()) {
+    <div class="sidebar__brand-text">
+      <div class="sidebar__brand-name">TRIGENT</div>
+      <div class="sidebar__brand-tag">Attendance &amp; Compliance</div>
+    </div>
+  }
+</div>
+
+<nav class="sidebar__nav" aria-label="Main">
+  @for (item of navItems; track item.path) {
+    <a
+      class="sidebar__link"
+      [routerLink]="item.path"
+      routerLinkActive="sidebar__link--active"
+      [routerLinkActiveOptions]="{ exact: item.path === '/dashboard' }"
+    >
+      <i class="fa-solid {{ item.icon }} sidebar__icon" aria-hidden="true"></i>
+      @if (layout.sidebarExpanded()) {
+        <span class="sidebar__label">{{ item.label }}</span>
+      }
+    </a>
+  }
+</nav>
+
+<div class="sidebar__profile">
+  <div class="sidebar__avatar" aria-hidden="true">PD</div>
+  @if (layout.sidebarExpanded()) {
+    <div class="sidebar__profile-text">
+      <div class="sidebar__profile-name">Pooja D</div>
+      <div class="sidebar__profile-role">HR Admin</div>
+    </div>
+    <i class="fa-solid fa-chevron-down sidebar__chevron" aria-hidden="true"></i>
+  }
+</div>
