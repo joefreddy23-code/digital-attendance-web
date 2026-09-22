@@ -38,26 +38,27 @@
   padding-inline: 0;
 }
 
-.sidebar__mark {
+.sidebar__logo {
+  display: block;
+  object-fit: contain;
+  object-position: left center;
+  flex-shrink: 0;
+}
+
+.sidebar__logo--full {
+  height: 2.5rem;
+  width: auto;
+  max-width: 100%;
+  /* Drop black plate from the light full logo on navy sidebar */
+  mix-blend-mode: lighten;
+}
+
+.sidebar__logo--half {
   width: 36px;
   height: 36px;
   border-radius: 8px;
   object-fit: cover;
-  flex-shrink: 0;
-}
-
-.sidebar__brand-name {
-  font-size: 1.05rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  line-height: 1.1;
-}
-
-.sidebar__brand-tag {
-  margin-top: 0.15rem;
-  font-size: 0.7rem;
-  color: var(--sidebar-muted);
-  white-space: nowrap;
+  mix-blend-mode: lighten;
 }
 
 .sidebar__nav {

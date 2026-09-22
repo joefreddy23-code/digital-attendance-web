@@ -1,10 +1,18 @@
 <div class="sidebar__brand">
-  <img class="sidebar__mark" src="trigentLogoIcon.png" alt="" width="36" height="36" />
   @if (layout.sidebarExpanded()) {
-    <div class="sidebar__brand-text">
-      <div class="sidebar__brand-name">TRIGENT</div>
-      <div class="sidebar__brand-tag">Attendance &amp; Compliance</div>
-    </div>
+    <img
+      class="sidebar__logo sidebar__logo--full"
+      src="trigentLogoFullLight.png"
+      alt="TRIGENT"
+    />
+  } @else {
+    <img
+      class="sidebar__logo sidebar__logo--half"
+      src="trigentLogoHalf.png"
+      alt="TRIGENT"
+      width="36"
+      height="36"
+    />
   }
 </div>
 
