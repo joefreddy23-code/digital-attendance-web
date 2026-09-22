@@ -7,20 +7,17 @@
       <div class="col-12 col-lg-7">
         <div class="auth-brand mb-4">
           <img
-            class="auth-brand__icon"
-            src="trigentLogoIcon.png"
-            alt=""
-            width="40"
-            height="40"
+            class="auth-brand__logo"
+            src="trigentLogoFull.png"
+            alt="TRIGENT"
           />
-          <div class="auth-brand__text">
-            <div class="auth-brand__name">TRIGENT</div>
-            <div class="auth-brand__tagline">Attendance &amp; Compliance · Admin portal</div>
-          </div>
+          <p class="auth-brand__tagline">Attendance &amp; Compliance · Admin portal</p>
         </div>
 
-        <h1 class="auth-headline">{{ headline() }}</h1>
-        <p class="auth-description">{{ description() }}</p>
+        <h1 class="auth-headline">Every shift, verified.</h1>
+        <p class="auth-description">
+          Employees, locations and compliance reports for the whole workforce.
+        </p>
 
         <ul class="auth-features list-unstyled mb-0">
           @for (feature of features; track feature.title) {

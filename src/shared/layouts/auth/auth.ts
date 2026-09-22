@@ -1,7 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, NavigationEnd, Router, RouterOutlet } from '@angular/router';
-import { filter, map, startWith } from 'rxjs';
+import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-auth',
@@ -10,9 +8,6 @@ import { filter, map, startWith } from 'rxjs';
   styleUrl: './auth.css',
 })
 export class Auth {
-  private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
-
   readonly features = [
     {
       title: 'Employees',
@@ -30,26 +25,4 @@ export class Auth {
       icon: 'reports',
     },
   ] as const;
-
-  private readonly childData$ = this.router.events.pipe(
-    filter((e): e is NavigationEnd => e instanceof NavigationEnd),
-    startWith(null),
-    map(() => {
-      let child = this.route.firstChild;
-      while (child?.firstChild) {
-        child = child.firstChild;
-      }
-      return child?.snapshot?.data ?? {};
-    }),
-  );
-
-  readonly headline = toSignal(
-    this.childData$.pipe(map((d) => (d['headline'] as string) ?? '')),
-    { initialValue: '' },
-  );
-
-  readonly description = toSignal(
-    this.childData$.pipe(map((d) => (d['description'] as string) ?? '')),
-    { initialValue: '' },
-  );
 }
