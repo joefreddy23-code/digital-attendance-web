@@ -31,7 +31,7 @@ const testRoutes: Routes = [
         data: {
           headline: 'Locked out? Happens.',
           description:
-            "Enter the email you sign in with and we'll send a reset link.",
+            "Enter the Employee ID you sign in with and we'll send a reset link.",
         },
       },
     ],
@@ -84,7 +84,7 @@ describe('Auth', () => {
 
     const text = fixture.nativeElement.textContent as string;
     expect(text).toContain('Locked out? Happens.');
-    expect(text).toContain("Enter the email you sign in with");
+    expect(text).toContain('Enter the Employee ID you sign in with');
     expect(text).not.toContain('Every shift, verified.');
   });
 });
