@@ -11,7 +11,7 @@ import { Router, RouterLink } from '@angular/router';
 export class Login {
   private readonly router = inject(Router);
 
-  email = 'pooja@company.com';
+  email = '';
   password = '';
 
   onSubmit(): void {

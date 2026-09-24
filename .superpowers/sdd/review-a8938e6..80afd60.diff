@@ -1,0 +1,10 @@
+﻿# Review package: a8938e6f9823d752d95547a1be5b67fe76e878a1..80afd604bb53970a74c8013bfc85fa45452a269b
+
+## Commits
+80afd60 chore: add Bootstrap and auth UI fonts
+
+## Files changed
+ src/index.html |  5 ++++-  src/styles.css | 12 +++++++++++-  2 files changed, 15 insertions(+), 2 deletions(-)
+
+## Diff
+diff --git a/src/index.html b/src/index.html index 3d6f929..58ddd1e 100644 --- a/src/index.html +++ b/src/index.html @@ -1,13 +1,16 @@  <!doctype html>  <html lang="en">  <head>    <meta charset="utf-8">    <title>AttendWebApp</title>    <base href="/">    <meta name="viewport" content="width=device-width, initial-scale=1"> -  <link rel="icon" type="image/x-icon" href="favicon.ico"> +  <link rel="preconnect" href="https://fonts.googleapis.com"> +  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> +  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"> +  <link rel="icon" type="image/x-icon" href="trigentLogoIcon.png">  </head>  <body>    <app-root></app-root>  </body>  </html> diff --git a/src/styles.css b/src/styles.css index 90d4ee0..b979dc1 100644 --- a/src/styles.css +++ b/src/styles.css @@ -1 +1,11 @@ -/* You can add global styles to this file, and also import other style files */ +@import 'bootstrap/dist/css/bootstrap.min.css'; + +html, +body { +  height: 100%; +  margin: 0; +} + +body { +  font-family: 'DM Sans', system-ui, sans-serif; +}
