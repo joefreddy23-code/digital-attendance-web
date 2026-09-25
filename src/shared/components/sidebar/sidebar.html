@@ -36,11 +36,11 @@
 </nav>
 
 <div class="sidebar__profile">
-  <div class="sidebar__avatar" aria-hidden="true">PD</div>
+  <div class="sidebar__avatar" aria-hidden="true">{{ initials }}</div>
   @if (layout.sidebarExpanded()) {
     <div class="sidebar__profile-text">
-      <div class="sidebar__profile-name">Pooja D</div>
-      <div class="sidebar__profile-role">HR Admin</div>
+      <div class="sidebar__profile-name">{{ displayName }}</div>
+      <div class="sidebar__profile-role">{{ displayRole }}</div>
     </div>
     <!-- <i class="fa-solid fa-chevron-down sidebar__chevron" aria-hidden="true"></i> -->
   }
