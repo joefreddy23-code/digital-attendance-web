@@ -27,7 +27,7 @@ export class Sidebar {
   ] as const;
 
   get displayName(): string {
-    return this.auth.getUser()?.empName ?? 'â€”';
+    return this.auth.getUser()?.empName ?? '-';
   }
 
   get displayRole(): string {

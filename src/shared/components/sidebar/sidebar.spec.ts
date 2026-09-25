@@ -60,7 +60,7 @@ describe('Sidebar', () => {
     auth.getUser.and.returnValue(null);
     fixture = TestBed.createComponent(Sidebar);
     fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain('â€”');
+    expect(fixture.nativeElement.textContent).toContain('-');
     expect(fixture.debugElement.query(By.css('.sidebar__avatar')).nativeElement.textContent.trim()).toBe('?');
   });
 
