@@ -2,6 +2,8 @@ import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
+import { Auth } from '../../../shared/services/auth/auth';
+
 @Component({
   selector: 'app-forgot-password',
   imports: [ReactiveFormsModule, RouterLink],
@@ -10,23 +12,45 @@ import { RouterLink } from '@angular/router';
 })
 export class ForgotPassword {
   private readonly fb = inject(FormBuilder);
+  private readonly auth = inject(Auth);
 
   submitted = false;
+  loading = false;
+  apiMessage: string | null = null;
+  apiMessageIsError = false;
 
   readonly form = this.fb.nonNullable.group({
-    employeeId: ['', Validators.required],
+    identifier: ['', Validators.required],
   });
 
-  showError(controlName: 'employeeId'): boolean {
+  showError(controlName: 'identifier'): boolean {
     const control = this.form.controls[controlName];
     return this.submitted && control.invalid;
   }
 
   onSubmit(): void {
     this.submitted = true;
-    if (this.form.invalid) {
+    this.apiMessage = null;
+    this.apiMessageIsError = false;
+    if (this.form.invalid || this.loading) {
       return;
     }
-    // Static UI only — no API in this POC
+
+    const { identifier } = this.form.getRawValue();
+    const payload = this.auth.buildForgotPasswordRequest(identifier);
+    this.loading = true;
+
+    this.auth.forgotPassword(payload).subscribe({
+      next: (res) => {
+        this.loading = false;
+        this.apiMessage = res.message;
+        this.apiMessageIsError = !res.success;
+      },
+      error: () => {
+        this.loading = false;
+        this.apiMessage = 'Unable to connect. Please try again.';
+        this.apiMessageIsError = true;
+      },
+    });
   }
 }

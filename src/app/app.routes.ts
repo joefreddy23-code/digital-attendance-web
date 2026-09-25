@@ -36,7 +36,7 @@ export const routes: Routes = [
         data: {
           headline: 'Locked out? Happens.',
           description:
-            "Enter the Employee ID you sign in with and we'll send a reset link.",
+            "Enter the Employee ID or Email you sign in with and we'll send a reset link.",
         },
       },
     ],
