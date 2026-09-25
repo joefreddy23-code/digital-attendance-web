@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 
 import { API_ENDPOINTS } from '../../utils/config/api.config';
@@ -21,6 +22,7 @@ const USER_KEY = 'auth_user';
 })
 export class Auth {
   private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
 
   login(payload: LoginRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(API_ENDPOINTS.login, payload);
@@ -79,5 +81,10 @@ export class Auth {
 
   isAuthenticated(): boolean {
     return !!this.getToken();
+  }
+
+  logout(): void {
+    localStorage.clear();
+    void this.router.navigateByUrl('/login');
   }
 }

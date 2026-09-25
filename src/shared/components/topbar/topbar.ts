@@ -3,6 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter, map, startWith } from 'rxjs';
 
+import { Auth } from '../../services/auth/auth';
 import { MainLayoutService } from '../../services/main-layout/main-layout';
 
 const PAGE_TITLES: Record<string, string> = {
@@ -21,6 +22,7 @@ const PAGE_TITLES: Record<string, string> = {
 })
 export class Topbar {
   private readonly layout = inject(MainLayoutService);
+  private readonly auth = inject(Auth);
   private readonly router = inject(Router);
 
   readonly pageTitle = toSignal(
@@ -40,6 +42,6 @@ export class Topbar {
   }
 
   signOut(): void {
-    void this.router.navigateByUrl('/login');
+    this.auth.logout();
   }
 }

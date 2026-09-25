@@ -36,7 +36,7 @@ describe('Main', () => {
   };
 
   beforeEach(async () => {
-    auth = jasmine.createSpyObj<Auth>('Auth', ['getUser']);
+    auth = jasmine.createSpyObj<Auth>('Auth', ['getUser', 'logout']);
     auth.getUser.and.returnValue(userData);
 
     await TestBed.configureTestingModule({

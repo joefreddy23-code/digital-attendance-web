@@ -3,6 +3,7 @@ import {
   HttpClientTestingModule,
   HttpTestingController,
 } from '@angular/common/http/testing';
+import { provideRouter, Router } from '@angular/router';
 
 import { Auth } from './auth';
 import { API_ENDPOINTS } from '../../utils/config/api.config';
@@ -28,6 +29,7 @@ describe('Auth', () => {
     localStorage.clear();
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
+      providers: [provideRouter([])],
     });
     service = TestBed.inject(Auth);
     httpMock = TestBed.inject(HttpTestingController);
@@ -117,5 +119,18 @@ describe('Auth', () => {
     expect(service.getToken()).toBeNull();
     expect(service.getUser()).toBeNull();
     expect(service.isAuthenticated()).toBeFalse();
+  });
+
+  it('should clear all localStorage and navigate to login on logout', () => {
+    localStorage.setItem('auth_token', 't');
+    localStorage.setItem('other_key', 'x');
+    const router = TestBed.inject(Router);
+    spyOn(router, 'navigateByUrl');
+
+    service.logout();
+
+    expect(localStorage.getItem('auth_token')).toBeNull();
+    expect(localStorage.getItem('other_key')).toBeNull();
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/login');
   });
 });

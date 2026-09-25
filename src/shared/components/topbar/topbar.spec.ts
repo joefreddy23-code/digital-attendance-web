@@ -1,24 +1,29 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter, Router } from '@angular/router';
+import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
 import { By } from '@angular/platform-browser';
 
+import { Auth } from '../../services/auth/auth';
 import { MainLayoutService } from '../../services/main-layout/main-layout';
 import { Topbar } from './topbar';
 
 describe('Topbar', () => {
   let fixture: ComponentFixture<Topbar>;
   let layout: MainLayoutService;
-  let router: Router;
+  let auth: jasmine.SpyObj<Auth>;
 
   beforeEach(async () => {
+    auth = jasmine.createSpyObj<Auth>('Auth', ['logout']);
     await TestBed.configureTestingModule({
       imports: [Topbar],
-      providers: [provideRouter([])],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        { provide: Auth, useValue: auth },
+      ],
     }).compileComponents();
 
     layout = TestBed.inject(MainLayoutService);
-    router = TestBed.inject(Router);
-    spyOn(router, 'navigateByUrl');
     fixture = TestBed.createComponent(Topbar);
     fixture.detectChanges();
   });
@@ -35,12 +40,10 @@ describe('Topbar', () => {
     expect(layout.sidebarExpanded()).toBeFalse();
   });
 
-  it('should show Overview title and sign out to login', () => {
+  it('should show Overview title and call Auth.logout on sign out', () => {
     expect(fixture.nativeElement.textContent).toContain('Overview');
-    expect(fixture.nativeElement.textContent).toContain('Sign out');
-
     const signOut = fixture.debugElement.query(By.css('button.topbar__signout'));
     signOut.triggerEventHandler('click', {});
-    expect(router.navigateByUrl).toHaveBeenCalledWith('/login');
+    expect(auth.logout).toHaveBeenCalled();
   });
 });
