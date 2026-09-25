@@ -23,6 +23,11 @@ export class Login {
   submitted = false;
   loading = false;
   apiError: string | null = null;
+  passwordVisible = false;
+
+  togglePasswordVisibility(): void {
+    this.passwordVisible = !this.passwordVisible;
+  }
 
   readonly form = this.fb.nonNullable.group({
     identifier: ['', Validators.required],

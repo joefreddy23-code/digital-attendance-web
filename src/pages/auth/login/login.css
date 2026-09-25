@@ -138,3 +138,31 @@
   color: #b42318;
   font-size: 0.875rem;
 }
+
+.auth-field__control {
+  position: relative;
+  display: block;
+}
+
+.auth-field__input--with-toggle {
+  padding-right: 2.75rem;
+}
+
+.auth-field__toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.65rem;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  border: 0;
+  background: transparent;
+  color: var(--auth-muted);
+  cursor: pointer;
+}
+
+.auth-field__toggle:hover {
+  color: var(--auth-text);
+}

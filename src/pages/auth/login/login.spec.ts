@@ -152,4 +152,28 @@ describe('Login', () => {
       'Unable to connect. Please try again.',
     );
   });
+
+  it('should default password field to type password with show control', () => {
+    const input = fixture.debugElement.query(By.css('input[formControlName="password"]'));
+    expect(input.nativeElement.getAttribute('type')).toBe('password');
+    const toggle = fixture.debugElement.query(By.css('button.auth-field__toggle'));
+    expect(toggle).toBeTruthy();
+    expect(toggle.nativeElement.getAttribute('aria-label')).toBe('Show password');
+  });
+
+  it('should toggle password visibility on eye button click', () => {
+    const toggle = fixture.debugElement.query(By.css('button.auth-field__toggle'));
+    toggle.triggerEventHandler('click', {});
+    fixture.detectChanges();
+
+    const input = fixture.debugElement.query(By.css('input[formControlName="password"]'));
+    expect(input.nativeElement.getAttribute('type')).toBe('text');
+    expect(toggle.nativeElement.getAttribute('aria-label')).toBe('Hide password');
+    expect(toggle.nativeElement.querySelector('i.fa-eye-slash')).toBeTruthy();
+
+    toggle.triggerEventHandler('click', {});
+    fixture.detectChanges();
+    expect(input.nativeElement.getAttribute('type')).toBe('password');
+    expect(toggle.nativeElement.getAttribute('aria-label')).toBe('Show password');
+  });
 });
