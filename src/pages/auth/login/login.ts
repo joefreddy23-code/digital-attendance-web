@@ -6,6 +6,8 @@ import {
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
+import { Auth } from '../../../shared/services/auth/auth';
+
 @Component({
   selector: 'app-login',
   imports: [ReactiveFormsModule, RouterLink],
@@ -15,11 +17,14 @@ import { Router, RouterLink } from '@angular/router';
 export class Login {
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
+  private readonly auth = inject(Auth);
 
   submitted = false;
+  loading = false;
+  apiError: string | null = null;
 
   readonly form = this.fb.nonNullable.group({
-    employeeId: ['', Validators.required],
+    identifier: ['', Validators.required],
     password: [
       '',
       [
@@ -30,7 +35,7 @@ export class Login {
     ],
   });
 
-  showError(controlName: 'employeeId' | 'password'): boolean {
+  showError(controlName: 'identifier' | 'password'): boolean {
     const control = this.form.controls[controlName];
     return this.submitted && control.invalid;
   }
@@ -54,9 +59,29 @@ export class Login {
 
   onSubmit(): void {
     this.submitted = true;
-    if (this.form.invalid) {
+    this.apiError = null;
+    if (this.form.invalid || this.loading) {
       return;
     }
-    void this.router.navigateByUrl('/dashboard');
+
+    const { identifier, password } = this.form.getRawValue();
+    const payload = this.auth.buildLoginRequest(identifier, password);
+    this.loading = true;
+
+    this.auth.login(payload).subscribe({
+      next: (res) => {
+        this.loading = false;
+        if (res.success && res.data) {
+          this.auth.saveSession(res.data);
+          void this.router.navigateByUrl('/dashboard');
+          return;
+        }
+        this.apiError = res.message || 'Login failed';
+      },
+      error: () => {
+        this.loading = false;
+        this.apiError = 'Unable to connect. Please try again.';
+      },
+    });
   }
 }

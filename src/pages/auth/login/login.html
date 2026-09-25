@@ -2,18 +2,22 @@
   <h2 class="auth-card__title">Welcome back</h2>
   <p class="auth-card__subtitle">Sign in to the HR admin portal</p>
 
+  @if (apiError) {
+    <p class="auth-card__api-error" role="alert">{{ apiError }}</p>
+  }
+
   <form class="auth-card__form" [formGroup]="form" (ngSubmit)="onSubmit()">
     <label class="auth-field">
-      <span class="auth-field__label">Employee ID</span>
+      <span class="auth-field__label">Employee ID or Email</span>
       <input
         class="auth-field__input"
-        [class.auth-field__input--invalid]="showError('employeeId')"
+        [class.auth-field__input--invalid]="showError('identifier')"
         type="text"
-        formControlName="employeeId"
+        formControlName="identifier"
         autocomplete="username"
       />
-      @if (showError('employeeId')) {
-        <span class="auth-field__error">Employee ID is required</span>
+      @if (showError('identifier')) {
+        <span class="auth-field__error">Employee ID or Email is required</span>
       }
     </label>
 
@@ -35,6 +39,8 @@
       <a class="auth-card__link" routerLink="/forgot-password">Forgot password?</a>
     </div>
 
-    <button class="auth-card__submit" type="submit">Sign In</button>
+    <button class="auth-card__submit" type="submit" [disabled]="loading">
+      {{ loading ? 'Signing inâ€¦' : 'Sign In' }}
+    </button>
   </form>
 </section>
