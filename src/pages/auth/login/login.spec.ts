@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { By } from '@angular/platform-browser';
@@ -119,8 +120,30 @@ describe('Login', () => {
     expect(router.navigateByUrl).not.toHaveBeenCalled();
   });
 
-  it('should show fallback message on HTTP error', () => {
-    auth.login.and.returnValue(throwError(() => new Error('network')));
+  it('should show API message from HttpErrorResponse body', () => {
+    auth.login.and.returnValue(
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 401,
+            error: { success: false, message: 'Invalid email or password' },
+          }),
+      ),
+    );
+    component.form.setValue({ identifier: '20', password: 'Password1' });
+    component.onSubmit();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain(
+      'Invalid email or password',
+    );
+    expect(router.navigateByUrl).not.toHaveBeenCalled();
+  });
+
+  it('should show fallback message on HTTP error without body message', () => {
+    auth.login.and.returnValue(
+      throwError(() => new HttpErrorResponse({ status: 0, error: null })),
+    );
     component.form.setValue({ identifier: '20', password: 'Password1' });
     component.onSubmit();
     fixture.detectChanges();
@@ -128,6 +151,5 @@ describe('Login', () => {
     expect(fixture.nativeElement.textContent).toContain(
       'Unable to connect. Please try again.',
     );
-    expect(router.navigateByUrl).not.toHaveBeenCalled();
   });
 });

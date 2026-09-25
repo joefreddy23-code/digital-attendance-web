@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { By } from '@angular/platform-browser';
@@ -93,8 +94,29 @@ describe('ForgotPassword', () => {
     );
   });
 
-  it('should show fallback message on HTTP error', () => {
-    auth.forgotPassword.and.returnValue(throwError(() => new Error('network')));
+  it('should show API message from HttpErrorResponse body', () => {
+    auth.forgotPassword.and.returnValue(
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 401,
+            error: { success: false, message: 'Invalid email or password' },
+          }),
+      ),
+    );
+    component.form.setValue({ identifier: '2' });
+    component.onSubmit();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain(
+      'Invalid email or password',
+    );
+  });
+
+  it('should show fallback message on HTTP error without body message', () => {
+    auth.forgotPassword.and.returnValue(
+      throwError(() => new HttpErrorResponse({ status: 0, error: null })),
+    );
     component.form.setValue({ identifier: '2' });
     component.onSubmit();
     fixture.detectChanges();

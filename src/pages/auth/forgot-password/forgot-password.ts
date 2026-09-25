@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
 import { Auth } from '../../../shared/services/auth/auth';
+import { apiErrorMessage } from '../../../shared/utils/http/api-error-message';
 
 @Component({
   selector: 'app-forgot-password',
@@ -46,9 +47,9 @@ export class ForgotPassword {
         this.apiMessage = res.message;
         this.apiMessageIsError = !res.success;
       },
-      error: () => {
+      error: (err) => {
         this.loading = false;
-        this.apiMessage = 'Unable to connect. Please try again.';
+        this.apiMessage = apiErrorMessage(err);
         this.apiMessageIsError = true;
       },
     });

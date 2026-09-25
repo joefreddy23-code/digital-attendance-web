@@ -7,6 +7,7 @@ import {
 import { Router, RouterLink } from '@angular/router';
 
 import { Auth } from '../../../shared/services/auth/auth';
+import { apiErrorMessage } from '../../../shared/utils/http/api-error-message';
 
 @Component({
   selector: 'app-login',
@@ -78,9 +79,9 @@ export class Login {
         }
         this.apiError = res.message || 'Login failed';
       },
-      error: () => {
+      error: (err) => {
         this.loading = false;
-        this.apiError = 'Unable to connect. Please try again.';
+        this.apiError = apiErrorMessage(err);
       },
     });
   }
