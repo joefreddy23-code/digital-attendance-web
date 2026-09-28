@@ -1,15 +1,19 @@
 <section class="overview">
+  @if (errorMessage) {
+    <p class="overview-error" role="alert">{{ errorMessage }}</p>
+  }
+
   <div class="overview-summary">
     <article class="overview-summary__card overview-summary__card--total">
-      <div class="overview-summary__value">{{ summary.totalEmployees }}</div>
+      <div class="overview-summary__value">{{ totalEmployees }}</div>
       <div class="overview-summary__label">Total Employees</div>
     </article>
     <article class="overview-summary__card overview-summary__card--checked">
-      <div class="overview-summary__value">{{ summary.checkedIn }}</div>
+      <div class="overview-summary__value">{{ totalCheckedIn }}</div>
       <div class="overview-summary__label">Checked In</div>
     </article>
     <article class="overview-summary__card overview-summary__card--pending">
-      <div class="overview-summary__value">{{ summary.yetToCheckIn }}</div>
+      <div class="overview-summary__value">{{ yettoCheckIn }}</div>
       <div class="overview-summary__label">Yet to Check In</div>
     </article>
   </div>
@@ -21,18 +25,18 @@
     <section class="overview-card overview-locations">
       <h2 class="overview-card__title">Attendance by location</h2>
       <ul class="overview-locations__list">
-        @for (row of locations; track row.city) {
+        @for (row of employeesByCity; track row.city) {
           <li class="overview-locations__row">
             <div class="overview-locations__meta">
               <span class="overview-locations__city">{{ row.city }}</span>
               <span class="overview-locations__count"
-                >{{ row.present }} of {{ row.total }} present</span
+                >{{ row.employeeCount }} of {{ row.totalemployeeCount }} present</span
               >
             </div>
             <div class="overview-locations__track" aria-hidden="true">
               <div
                 class="overview-locations__fill"
-                [style.width.%]="percentPresent(row.present, row.total)"
+                [style.width.%]="percentPresent(row.employeeCount, row.totalemployeeCount)"
               ></div>
             </div>
           </li>
@@ -44,16 +48,18 @@
       <section class="overview-card overview-review">
         <div class="overview-review__header">
           <h2 class="overview-card__title">Needs review today</h2>
-          <span class="overview-review__badge">{{ reviewItems.length }}</span>
+          <span class="overview-review__badge">{{ supervisorQueries.length }}</span>
         </div>
         <ul class="overview-review__list">
-          @for (item of reviewItems; track item.name) {
+          @for (item of supervisorQueries; track item.exceptionId) {
             <li class="overview-review__item">
               <div class="overview-review__person">
-                <div class="overview-review__name">{{ item.name }}</div>
-                <div class="overview-review__location">{{ item.location }}</div>
+                <div class="overview-review__name">{{ item.employeeName }}</div>
+                <div class="overview-review__location">
+                  {{ formatCheckin(item.checkinDatetime) }}
+                </div>
               </div>
-              <div class="overview-review__status">{{ item.status }}</div>
+              <div class="overview-review__status">{{ item.issueNote }}</div>
             </li>
           }
         </ul>
@@ -88,18 +94,19 @@
       <h2 id="overview-modal-title" class="overview-modal__title">
         Missed check-outs · supervisor notes
       </h2>
-      <p class="overview-modal__subtitle">{{ modalItems.length }} employees</p>
+      <p class="overview-modal__subtitle">
+        {{ supervisorQueries.length }} employees
+      </p>
     </div>
     <ul class="overview-modal__list">
-      @for (item of modalItems; track item.name) {
+      @for (item of supervisorQueries; track item.exceptionId) {
         <li class="overview-modal__item">
-          <div class="overview-modal__name">{{ item.name }}</div>
-          <div class="overview-modal__location">{{ item.location }}</div>
+          <div class="overview-modal__name">{{ item.employeeName }}</div>
+          <div class="overview-modal__location">
+            {{ formatCheckin(item.checkinDatetime) }}
+          </div>
           <div class="overview-modal__note">
-            <div class="overview-modal__supervisor">
-              SUPERVISOR · {{ item.supervisor }}
-            </div>
-            <p class="overview-modal__note-text">{{ item.note }}</p>
+            <p class="overview-modal__note-text">{{ item.issueNote }}</p>
           </div>
           <div class="overview-modal__actions">
             <button type="button" class="overview-modal__decline">Decline</button>

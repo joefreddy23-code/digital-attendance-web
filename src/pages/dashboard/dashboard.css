@@ -1,3 +1,14 @@
+.overview-error {
+  margin: 0 0 0.75rem;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid rgba(185, 28, 28, 0.25);
+  border-radius: 0.65rem;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
 :host {
   --overview-navy: #0f2137;
   --overview-muted: #6b7280;
