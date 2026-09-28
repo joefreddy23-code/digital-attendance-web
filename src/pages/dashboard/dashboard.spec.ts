@@ -193,10 +193,40 @@ describe('Dashboard', () => {
     expect(fixture.debugElement.query(By.css('.overview-modal'))).toBeNull();
   });
 
-  it('should keep empty defaults when overview request fails', async () => {
+  it('should show error banner and reset data when overview HTTP request fails', async () => {
     await setup({ ...baseUser, empRoleId: 1 }, null);
 
-    expect(fixture.componentInstance.totalEmployees).toBe(0);
-    expect(fixture.componentInstance.employeesByCity.length).toBe(0);
+    const cmp = fixture.componentInstance;
+    expect(cmp.errorMessage).toBe('Unable to load overview.');
+    expect(cmp.totalEmployees).toBe(0);
+    expect(cmp.totalCheckedIn).toBe(0);
+    expect(cmp.yettoCheckIn).toBe(0);
+    expect(cmp.employeesByCity).toEqual([]);
+    expect(cmp.supervisorQueries).toEqual([]);
+
+    const banner = fixture.debugElement.query(By.css('.overview-error'));
+    expect(banner).not.toBeNull();
+    expect(banner.nativeElement.textContent.trim()).toBe(
+      'Unable to load overview.',
+    );
+  });
+
+  it('should show API message and reset data when overview returns success false', async () => {
+    await setup({ ...baseUser, empRoleId: 1 }, {
+      success: false,
+      message: 'Server says no',
+    });
+
+    const cmp = fixture.componentInstance;
+    expect(cmp.errorMessage).toBe('Server says no');
+    expect(cmp.totalEmployees).toBe(0);
+    expect(cmp.totalCheckedIn).toBe(0);
+    expect(cmp.yettoCheckIn).toBe(0);
+    expect(cmp.employeesByCity).toEqual([]);
+    expect(cmp.supervisorQueries).toEqual([]);
+
+    const banner = fixture.debugElement.query(By.css('.overview-error'));
+    expect(banner).not.toBeNull();
+    expect(banner.nativeElement.textContent.trim()).toBe('Server says no');
   });
 });
