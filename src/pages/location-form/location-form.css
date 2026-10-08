@@ -1,0 +1,211 @@
+:host {
+  --lf-navy:    #0f2137;
+  --lf-muted:   #6b7280;
+  --lf-border:  rgba(15, 33, 55, 0.12);
+  --lf-focus:   #1d4ed8;
+  --lf-invalid: #dc2626;
+  --lf-accent:  #f5a623;
+  --lf-white:   #ffffff;
+  --lf-err-bg:  #fef2f2;
+  --lf-err-txt: #b91c1c;
+  --lf-ok-bg:   #ecfdf5;
+  --lf-ok-txt:  #047857;
+
+  display: block;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  color: var(--lf-navy);
+}
+
+/* ── Page ─────────────────────────────────────────────────────────────── */
+.lf-page {
+  /* nothing needed — Bootstrap row handles layout */
+}
+
+.lf-loading {
+  padding: 1rem 0;
+  font-size: 0.9rem;
+  color: var(--lf-muted);
+}
+
+/* ── Left card ────────────────────────────────────────────────────────── */
+.lf-card {
+  background: var(--lf-white);
+  border: 1px solid var(--lf-border);
+  border-radius: 0.85rem;
+  padding: 1.25rem;
+  box-sizing: border-box;
+}
+
+.lf-card__title {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--lf-navy);
+}
+
+/* Alerts */
+.lf-alert {
+  margin-bottom: 0.85rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+.lf-alert--error   { border: 1px solid rgba(220,38,38,.25);  background: var(--lf-err-bg); color: var(--lf-err-txt); }
+.lf-alert--success { border: 1px solid rgba(4,120,87,.25);   background: var(--lf-ok-bg);  color: var(--lf-ok-txt);  }
+
+/* ── Form fields ──────────────────────────────────────────────────────── */
+.lf-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-bottom: 0.65rem;
+}
+
+.lf-field__label {
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: var(--lf-navy);
+}
+
+.lf-field__input {
+  width: 100%;
+  padding: 0.42rem 0.7rem;
+  border: 1px solid var(--lf-border);
+  border-radius: 0.45rem;
+  background: var(--lf-white);
+  font-size: 0.88rem;
+  font-family: inherit;
+  color: var(--lf-navy);
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 140ms, box-shadow 140ms;
+}
+.lf-field__input::placeholder { color: #9ca3af; }
+.lf-field__input:focus {
+  border-color: var(--lf-focus);
+  box-shadow: 0 0 0 3px rgba(29,78,216,.08);
+}
+.lf-field__input--err { border-color: var(--lf-invalid); }
+.lf-field__input--err:focus { box-shadow: 0 0 0 3px rgba(220,38,38,.08); }
+
+/* remove number spinners */
+.lf-field__input[type='number']::-webkit-inner-spin-button,
+.lf-field__input[type='number']::-webkit-outer-spin-button { -webkit-appearance: none; }
+.lf-field__input[type='number'] { -moz-appearance: textfield; }
+
+.lf-field__err {
+  font-size: 0.76rem;
+  font-weight: 500;
+  color: var(--lf-invalid);
+}
+
+/* ── Hint box ─────────────────────────────────────────────────────────── */
+.lf-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.9rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--lf-border);
+  border-radius: 0.5rem;
+  background: #f8f9fc;
+}
+
+.lf-hint__icon {
+  font-size: 0.82rem;
+  color: var(--lf-accent);
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.lf-hint__text {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--lf-muted);
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────────── */
+.lf-actions {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.lf-actions__save {
+  flex: 1;
+  padding: 0.55rem 1rem;
+  border: 0;
+  border-radius: 0.5rem;
+  background: var(--lf-accent);
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter 140ms;
+}
+.lf-actions__save:hover:not(:disabled) { filter: brightness(.95); }
+.lf-actions__save:disabled { opacity: .65; cursor: not-allowed; }
+
+.lf-actions__cancel {
+  flex: 1;
+  padding: 0.53rem 1rem;
+  border: 1px solid var(--lf-border);
+  border-radius: 0.5rem;
+  background: var(--lf-white);
+  color: var(--lf-navy);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 140ms;
+}
+.lf-actions__cancel:hover:not(:disabled) { background: #f4f6fa; }
+.lf-actions__cancel:disabled { opacity: .65; cursor: not-allowed; }
+
+/* ── Right visual card ────────────────────────────────────────────────── */
+.lf-visual {
+  background: #eef0f7;
+  border: 1px solid var(--lf-border);
+  border-radius: 0.85rem;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.lf-visual__header {
+  padding: 1.25rem 1.25rem 0.75rem;
+  flex-shrink: 0;
+}
+
+.lf-visual__title {
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--lf-navy);
+}
+
+.lf-visual__sub {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--lf-muted);
+  line-height: 1;
+}
+
+/* Image area: fills remaining card space, image centered with equal breathing room */
+.lf-visual__img-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem 1rem;
+  min-height: 0;
+}
+
+.lf-visual__img {
+  display: block;
+  /* Fill the padded width; height scales proportionally with the form */
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}

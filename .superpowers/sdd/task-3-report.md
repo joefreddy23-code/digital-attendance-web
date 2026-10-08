@@ -1,46 +1,44 @@
-# Task 3 Report: Auth layout shell
+# Task 3 Report: Wire Dashboard to Overview API
 
 ## Status
-**Complete** — Auth layout shell implemented per brief; all Auth unit tests passing.
+**Complete** — Dashboard loads from `Overview.getOverview()`; static mock data removed.
 
-## Commits
-- `feat: build auth layout shell with route-driven copy` (4 files: `auth.ts`, `auth.html`, `auth.css`, `auth.spec.ts`)
+## TDD
 
-## TDD Evidence
+### RED
+- Replaced `dashboard.spec.ts` with API-focused specs (7 cases).
+- Command: `npx ng test --include=src/pages/dashboard/dashboard.spec.ts --browsers=ChromeHeadless --watch=false`
+- Result: **FAIL** — compile errors (`totalEmployees`, `employeesByCity` missing on `Dashboard`).
 
-### RED (Step 2)
-Command:
+### GREEN
+- Implemented `dashboard.ts`, `dashboard.html`, and `.overview-error` in `dashboard.css` per brief.
+- Same test command.
+- Result: **PASS** — 7/7 SUCCESS.
+
+## Changes
+| File | Change |
+|------|--------|
+| `dashboard.spec.ts` | Mock `Auth` + `Overview`; role 1/2, modal, error paths |
+| `dashboard.ts` | `loadOverview()`, role-2 `showNeedsReview`, `formatCheckin()` |
+| `dashboard.html` | Bind API fields; supervisor query list + modal |
+| `dashboard.css` | Error alert styling |
+
+## Commit
 ```
-npx ng test --no-watch --browsers=ChromeHeadless --include=src/shared/layouts/auth/auth.spec.ts
+feat(overview): load dashboard from overview API
 ```
-Result: **2 specs FAILED** (plus duplicate Electron launcher runs in environment). Failures matched expectation:
-- `should render brand and login left copy from route data` — text was `auth works!`, missing TRIGENT/headline/features; logo query null.
-- `should swap left copy on forgot-password route` — expected forgot-password copy, got `auth works!`.
-
-### GREEN (Step 6)
-Same command after implementing TS/HTML/CSS:
-```
-TOTAL: 3 SUCCESS
-```
-- `should create` — PASS
-- `should render brand and login left copy from route data` — PASS
-- `should swap left copy on forgot-password route` — PASS
-
-## Implementation Notes
-- **TypeScript:** `toSignal` + `NavigationEnd`/`startWith(null)` pipeline on child route `data`; lean `imports: [RouterOutlet]` only (no `AsyncPipe`).
-- **Deviation from brief snippet:** `return child?.snapshot?.data ?? {}` — brief had `child?.snapshot.data`, which throws when `snapshot` is absent during early navigation (`Cannot read properties of undefined (reading 'data')`).
-- **Template:** Brand (`trigentLogoIcon.png`), feature list, `headline()` / `description()` signals, `<router-outlet />`.
-- **CSS:** Dark shell, glows, feature icon SVG data-URLs, outlet max-width per spec.
-
-## Self-Review
-| Area | Assessment |
-|------|------------|
-| Requirements | Matches brief for markup, copy, features, route-driven headline/description |
-| Tests | Cover create, login data binding, forgot-password swap |
-| Scope | Only four auth layout files committed; no unrelated WIP staged |
-| Risk | Initial load before first `NavigationEnd` may show empty headline until navigation; `startWith(null)` emits once — acceptable for auth child routes |
-| Follow-up | Wire `Auth` in app routes if not already (out of Task 3 scope) |
 
 ## Concerns
-- Karma may launch both ChromeHeadless and Electron in some environments (RED showed 4 FAILED / 2 SUCCESS totals); filter to ChromeHeadless for clean counts.
-- Logo path is relative `trigentLogoIcon.png` (public asset); verify at runtime when auth routes are mounted.
+None. Interceptor and API config untouched per task scope.
+
+---
+
+## Final review fix: error-path specs (Important)
+
+**Status:** Complete — no `dashboard.ts` changes required.
+
+**Change:** Expanded `dashboard.spec.ts` with HTTP error and `success: false` cases asserting `errorMessage`, `.overview-error` DOM, numeric/array defaults, and `supervisorQueries` cleared.
+
+**Verify:** `npx ng test --include=src/pages/dashboard/dashboard.spec.ts --browsers=ChromeHeadless --watch=false` → **8/8 SUCCESS** (2026-09-28).
+
+**Commit:** `162f341` — `test(overview): cover dashboard error banner paths`

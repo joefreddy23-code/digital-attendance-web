@@ -1,0 +1,186 @@
+<section class="lf-page">
+
+  @if (isLoading) {
+    <div class="lf-loading" aria-live="polite">Loading location…</div>
+  }
+
+  <div class="row g-3 align-items-stretch">
+
+    <!-- ── Left card: form ─────────────────────────────────────────────── -->
+    <div class="col-12 col-lg-5">
+      <div class="lf-card h-100">
+        <h2 class="lf-card__title">{{ pageTitle }}</h2>
+
+        @if (errorMessage) {
+          <div class="lf-alert lf-alert--error" role="alert">{{ errorMessage }}</div>
+        }
+        @if (successMessage) {
+          <div class="lf-alert lf-alert--success" role="status">{{ successMessage }}</div>
+        }
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate autocomplete="off">
+
+          <!-- Location code -->
+          <div class="lf-field">
+            <label class="lf-field__label" for="loc-code">Location code</label>
+            <input
+              id="loc-code"
+              type="text"
+              class="lf-field__input"
+              [class.lf-field__input--err]="f['code'].invalid && f['code'].touched"
+              formControlName="code"
+              placeholder="e.g. BLR-1"
+            />
+            @if (f['code'].invalid && f['code'].touched) {
+              <span class="lf-field__err">
+                @if (f['code'].errors?.['required']) { Location code is required. }
+                @else if (f['code'].errors?.['maxlength']) { Maximum 20 characters. }
+              </span>
+            }
+          </div>
+
+          <!-- Location name -->
+          <div class="lf-field">
+            <label class="lf-field__label" for="loc-name">Location name</label>
+            <input
+              id="loc-name"
+              type="text"
+              class="lf-field__input"
+              [class.lf-field__input--err]="f['name'].invalid && f['name'].touched"
+              formControlName="name"
+              placeholder="e.g. Bagmane Tech Park, C V Raman Nagar, Bangalore"
+            />
+            @if (f['name'].invalid && f['name'].touched) {
+              <span class="lf-field__err">
+                @if (f['name'].errors?.['required']) { Location name is required. }
+                @else if (f['name'].errors?.['maxlength']) { Maximum 100 characters. }
+              </span>
+            }
+          </div>
+
+          <!-- City -->
+          <div class="lf-field">
+            <label class="lf-field__label" for="loc-city">City</label>
+            <input
+              id="loc-city"
+              type="text"
+              class="lf-field__input"
+              [class.lf-field__input--err]="f['city'].invalid && f['city'].touched"
+              formControlName="city"
+              placeholder="e.g. Bengaluru"
+            />
+            @if (f['city'].invalid && f['city'].touched) {
+              <span class="lf-field__err">
+                @if (f['city'].errors?.['required']) { City is required. }
+                @else if (f['city'].errors?.['maxlength']) { Maximum 60 characters. }
+              </span>
+            }
+          </div>
+
+          <!-- Latitude -->
+          <div class="lf-field">
+            <label class="lf-field__label" for="loc-lat">Latitude</label>
+            <input
+              id="loc-lat"
+              type="text"
+              inputmode="decimal"
+              class="lf-field__input"
+              [class.lf-field__input--err]="f['latitude'].invalid && f['latitude'].touched"
+              formControlName="latitude"
+              placeholder="e.g. 12.9716"
+            />
+            @if (f['latitude'].invalid && f['latitude'].touched) {
+              <span class="lf-field__err">
+                @if (f['latitude'].errors?.['required']) { Latitude is required. }
+                @else if (f['latitude'].errors?.['pattern']) { Enter a valid latitude (−90 to 90). }
+              </span>
+            }
+          </div>
+
+          <!-- Longitude -->
+          <div class="lf-field">
+            <label class="lf-field__label" for="loc-lng">Longitude</label>
+            <input
+              id="loc-lng"
+              type="text"
+              inputmode="decimal"
+              class="lf-field__input"
+              [class.lf-field__input--err]="f['longitude'].invalid && f['longitude'].touched"
+              formControlName="longitude"
+              placeholder="e.g. 77.5946"
+            />
+            @if (f['longitude'].invalid && f['longitude'].touched) {
+              <span class="lf-field__err">
+                @if (f['longitude'].errors?.['required']) { Longitude is required. }
+                @else if (f['longitude'].errors?.['pattern']) { Enter a valid longitude (−180 to 180). }
+              </span>
+            }
+          </div>
+
+          <!-- Radius -->
+          <div class="lf-field">
+            <label class="lf-field__label" for="loc-radius">
+              Allowed attendance area (metres)
+            </label>
+            <input
+              id="loc-radius"
+              type="number"
+              inputmode="numeric"
+              class="lf-field__input"
+              [class.lf-field__input--err]="f['radiusInMeters'].invalid && f['radiusInMeters'].touched"
+              formControlName="radiusInMeters"
+              placeholder="e.g. 800"
+              min="1"
+              max="50000"
+            />
+            @if (f['radiusInMeters'].invalid && f['radiusInMeters'].touched) {
+              <span class="lf-field__err">
+                @if (f['radiusInMeters'].errors?.['required']) { Radius is required. }
+                @else if (f['radiusInMeters'].errors?.['min']) { Minimum 1 m. }
+                @else if (f['radiusInMeters'].errors?.['max']) { Maximum 50 000 m. }
+              </span>
+            }
+          </div>
+
+          <!-- Hint box -->
+          <div class="lf-hint">
+            <i class="fa-regular fa-circle-question lf-hint__icon" aria-hidden="true"></i>
+            <p class="lf-hint__text">
+              Employees can only mark attendance inside this area.
+              Use a wider area for large tech parks with several buildings.
+            </p>
+          </div>
+
+          <!-- Buttons -->
+          <div class="lf-actions">
+            <button type="submit" class="lf-actions__save" [disabled]="isSaving">
+              {{ isSaving ? 'Saving…' : 'Save Location' }}
+            </button>
+            <button type="button" class="lf-actions__cancel" (click)="onCancel()" [disabled]="isSaving">
+              Cancel
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+    <!-- ── Right card: image ───────────────────────────────────────────── -->
+    <div class="col-12 col-lg-7">
+      <div class="lf-visual h-100">
+        <div class="lf-visual__header">
+          <h2 class="lf-visual__title">Allowed attendance area</h2>
+          <p class="lf-visual__sub">
+            Anyone inside this distance of the site can mark attendance. Check it
+            against the buildings people actually work in.
+          </p>
+        </div>
+        <div class="lf-visual__img-wrap">
+          <img src="locationImgRadius.png" alt="Attendance area map illustration" class="lf-visual__img" />
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</section>

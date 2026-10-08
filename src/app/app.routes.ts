@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 
-import { authGuard } from '../shared/guards/auth.guard';
+import { authGuard, guestGuard } from '../shared/guards/auth.guard';
 import { Auth } from '../shared/layouts/auth/auth';
 import { Main } from '../shared/layouts/main/main';
 
@@ -11,6 +11,7 @@ import { Dashboard } from '../pages/dashboard/dashboard';
 import { Attendance } from '../pages/attendance/attendance';
 import { Employees } from '../pages/employees/employees';
 import { Locations } from '../pages/locations/locations';
+import { LocationForm } from '../pages/location-form/location-form';
 import { Reports } from '../pages/reports/reports';
 
 export const routes: Routes = [
@@ -20,6 +21,7 @@ export const routes: Routes = [
   {
     path: '',
     component: Auth,
+    canActivate: [guestGuard],
     children: [
       {
         path: 'login',
@@ -52,6 +54,8 @@ export const routes: Routes = [
       { path: 'attendance', component: Attendance },
       { path: 'employees', component: Employees },
       { path: 'locations', component: Locations },
+      { path: 'locations/new', component: LocationForm },
+      { path: 'locations/edit/:id', component: LocationForm },
       { path: 'reports', component: Reports },
     ],
   },

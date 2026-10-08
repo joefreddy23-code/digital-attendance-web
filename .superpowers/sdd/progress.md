@@ -1,10 +1,11 @@
-# SDD Progress — auth-login-ui
+# SDD Progress - overview-api-integration
 
-Branch: feat/auth-login-ui
-Plan: docs/superpowers/plans/2026-09-22-auth-login-ui.md
+Branch: main
+Plan: docs/superpowers/plans/2026-09-28-overview-api-integration.md
+Workspace: in-place
 
-Task 1: complete (commits a8938e6..e998c80, review clean)
-Task 2: complete (commits e998c80..3582357, review clean)
-Task 3: complete (commits 3582357..d36cca6, review clean)
-Task 4: complete (commits d36cca6..d3467f7, review clean)
-Task 5+: complete (commit d96cd11 — forgot-password card + full logo, static left panel, card transition; user polish request)
+Task 1: complete (commits a7a533d..9a1a848, review clean)
+Task 2: complete (commits 9a1a848..0d673c8, review clean)
+Task 3: complete (commits 0d673c8..bbd9c37, review clean; fix 162f341)
+Final review: Ready to merge (Yes); Important error-path tests fixed
+Minor carry-forward: CSS __location naming; unused __supervisor CSS; strict URL equality

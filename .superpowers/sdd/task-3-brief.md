@@ -1,412 +1,492 @@
-﻿### Task 3: Auth layout shell
+### Task 3: Wire Dashboard to Overview API
 
 **Files:**
-- Modify: `src/shared/layouts/auth/auth.ts`
-- Modify: `src/shared/layouts/auth/auth.html`
-- Modify: `src/shared/layouts/auth/auth.css`
-- Modify: `src/shared/layouts/auth/auth.spec.ts`
+- Modify: `src/pages/dashboard/dashboard.ts`
+- Modify: `src/pages/dashboard/dashboard.html`
+- Modify: `src/pages/dashboard/dashboard.spec.ts`
 
 **Interfaces:**
-- Consumes: child route `data.headline`, `data.description`; `RouterOutlet`
-- Produces: `headline` / `description` signals (or properties) bound in template; feature list markup; brand using `/trigentLogoIcon.png`
+- Consumes: `Overview.getOverview()`, `OverviewResponse` / `OverviewData` / `EmployeesByCity` / `SupervisorQuery`, `Auth.getUser()`
+- Produces: Dashboard bound to API; no static mock arrays
 
-- [ ] **Step 1: Write failing Auth tests**
+- [ ] **Step 1: Rewrite failing Dashboard specs for API data**
 
-Replace `src/shared/layouts/auth/auth.spec.ts` with:
+Replace `src/pages/dashboard/dashboard.spec.ts` with:
 
 ```ts
-import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter, Router, Routes } from '@angular/router';
 import { By } from '@angular/platform-browser';
+import { of, throwError } from 'rxjs';
 
-import { Auth } from './auth';
+import { Auth } from '../../shared/services/auth/auth';
+import { Overview } from '../../shared/services/overview/overview';
+import { LoginUserData } from '../../shared/utils/interface/auth-response.interface';
+import { OverviewResponse } from '../../shared/utils/interface/overview-response.interface';
+import { Dashboard } from './dashboard';
 
-@Component({
-  standalone: true,
-  template: `<p>child</p>`,
-})
-class StubChild {}
+describe('Dashboard', () => {
+  let fixture: ComponentFixture<Dashboard>;
+  let auth: jasmine.SpyObj<Auth>;
+  let overview: jasmine.SpyObj<Overview>;
 
-const testRoutes: Routes = [
-  {
-    path: '',
-    component: Auth,
-    children: [
-      {
-        path: 'login',
-        component: StubChild,
-        data: {
-          headline: 'Every shift, verified.',
-          description:
-            'Employees, locations and compliance reports for the whole workforce.',
+  const baseUser: LoginUserData = {
+    empId: 1,
+    empName: 'Joseph J',
+    empEmail: 'joe_f@trigent.com',
+    empRoleId: 1,
+    empRole: 'Human Resource/ Admin',
+    token: 'test-token',
+    tokenType: 'Bearer',
+    expiresIn: 86400,
+    expiryTime: '2026-09-26T03:59:19.118Z',
+  };
+
+  const overviewFixture: OverviewResponse = {
+    success: true,
+    data: {
+      totalEmployees: 18,
+      totalCheckedIn: 1,
+      yettoCheckIn: 17,
+      employeesByCity: [
+        {
+          city: 'Bengaluru',
+          totalemployeeCount: 9,
+          employeeCount: 1,
         },
-      },
-      {
-        path: 'forgot-password',
-        component: StubChild,
-        data: {
-          headline: 'Locked out? Happens.',
-          description:
-            "Enter the email you sign in with and we'll send a reset link.",
+        {
+          city: 'Chennai',
+          totalemployeeCount: 13,
+          employeeCount: 0,
         },
-      },
-    ],
-  },
-];
+      ],
+      supervisorQueries: [
+        {
+          exceptionId: 8,
+          employeeId: 3,
+          employeeName: 'Joe Rosario freddy',
+          attendanceId: 22,
+          issueNote: 'Left early because of personal reasons,',
+          checkinDatetime: '2026-09-28T04:00:00.000Z',
+        },
+      ],
+    },
+  };
 
-describe('Auth', () => {
-  let fixture: ComponentFixture<Auth>;
-  let router: Router;
+  async function setup(
+    user: LoginUserData | null,
+    response: OverviewResponse | null = overviewFixture,
+  ): Promise<void> {
+    TestBed.resetTestingModule();
+    auth = jasmine.createSpyObj<Auth>('Auth', ['getUser']);
+    auth.getUser.and.returnValue(user);
+    overview = jasmine.createSpyObj<Overview>('Overview', ['getOverview']);
+    if (response) {
+      overview.getOverview.and.returnValue(of(response));
+    } else {
+      overview.getOverview.and.returnValue(
+        throwError(() => new Error('network')),
+      );
+    }
 
-  beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Auth],
-      providers: [provideRouter(testRoutes)],
+      imports: [Dashboard],
+      providers: [
+        { provide: Auth, useValue: auth },
+        { provide: Overview, useValue: overview },
+      ],
     }).compileComponents();
 
-    router = TestBed.inject(Router);
-    fixture = TestBed.createComponent(Auth);
+    fixture = TestBed.createComponent(Dashboard);
     fixture.detectChanges();
-  });
+  }
 
-  it('should create', () => {
+  it('should create and load overview', async () => {
+    await setup(baseUser);
     expect(fixture.componentInstance).toBeTruthy();
+    expect(overview.getOverview).toHaveBeenCalled();
   });
 
-  it('should render brand and login left copy from route data', async () => {
-    await router.navigateByUrl('/login');
-    fixture.detectChanges();
-    await fixture.whenStable();
-    fixture.detectChanges();
+  it('should show API summary and cities for role 1 and hide needs review', async () => {
+    await setup({ ...baseUser, empRoleId: 1 });
 
     const text = fixture.nativeElement.textContent as string;
-    expect(text).toContain('TRIGENT');
-    expect(text).toContain('Attendance & Compliance');
-    expect(text).toContain('Every shift, verified.');
-    expect(text).toContain('Employees, locations and compliance reports');
-    expect(text).toContain('Employees');
-    expect(text).toContain('Locations');
-    expect(text).toContain('Reports');
-
-    const logo = fixture.debugElement.query(By.css('img.auth-brand__icon'));
-    expect(logo).toBeTruthy();
-    expect(logo.nativeElement.getAttribute('src')).toContain('trigentLogoIcon.png');
+    expect(text).toContain('18');
+    expect(text).toContain('Total Employees');
+    expect(text).toContain('1');
+    expect(text).toContain('Checked In');
+    expect(text).toContain('17');
+    expect(text).toContain('Yet to Check In');
+    expect(text).toContain('Bengaluru');
+    expect(text).toContain('1 of 9 present');
+    expect(text).toContain('Chennai');
+    expect(text).not.toContain('Needs review today');
+    expect(text).not.toContain('Take action');
   });
 
-  it('should swap left copy on forgot-password route', async () => {
-    await router.navigateByUrl('/forgot-password');
-    fixture.detectChanges();
-    await fixture.whenStable();
-    fixture.detectChanges();
+  it('should hide needs review when user is missing', async () => {
+    await setup(null);
 
     const text = fixture.nativeElement.textContent as string;
-    expect(text).toContain('Locked out? Happens.');
-    expect(text).toContain("Enter the email you sign in with");
+    expect(text).toContain('Attendance by location');
+    expect(text).not.toContain('Needs review today');
+  });
+
+  it('should show needs review for role 2 from supervisorQueries and open modal', async () => {
+    await setup({
+      ...baseUser,
+      empRoleId: 2,
+      empRole: 'Account Manager',
+    });
+
+    const text = fixture.nativeElement.textContent as string;
+    expect(text).toContain('Needs review today');
+    expect(text).toContain('Joe Rosario freddy');
+    expect(text).toContain('Left early because of personal reasons,');
+
+    const takeAction = fixture.debugElement.query(
+      By.css('button.overview-review__action'),
+    );
+    takeAction.triggerEventHandler('click', {});
+    fixture.detectChanges();
+
+    expect(fixture.debugElement.query(By.css('.overview-modal'))).not.toBeNull();
+    expect(fixture.nativeElement.textContent).toContain(
+      'Missed check-outs · supervisor notes',
+    );
+    expect(fixture.nativeElement.textContent).toContain(
+      'Left early because of personal reasons,',
+    );
+    expect(fixture.nativeElement.textContent).not.toContain('SUPERVISOR ·');
+
+    const closeBtn = fixture.debugElement.query(
+      By.css('button.overview-modal__close'),
+    );
+    closeBtn.triggerEventHandler('click', {});
+    fixture.detectChanges();
+    expect(fixture.debugElement.query(By.css('.overview-modal'))).toBeNull();
+  });
+
+  it('should show needs review badge 0 when supervisorQueries empty for role 2', async () => {
+    await setup(
+      {
+        ...baseUser,
+        empRoleId: 2,
+        empRole: 'Account Manager',
+      },
+      {
+        success: true,
+        data: {
+          totalEmployees: 18,
+          totalCheckedIn: 1,
+          yettoCheckIn: 17,
+          employeesByCity: [],
+          supervisorQueries: [],
+        },
+      },
+    );
+
+    const text = fixture.nativeElement.textContent as string;
+    expect(text).toContain('Needs review today');
+    const badge = fixture.debugElement.query(By.css('.overview-review__badge'));
+    expect(badge.nativeElement.textContent.trim()).toBe('0');
+  });
+
+  it('should close modal when backdrop is clicked', async () => {
+    await setup({
+      ...baseUser,
+      empRoleId: 2,
+      empRole: 'Account Manager',
+    });
+
+    fixture.componentInstance.openModal();
+    fixture.detectChanges();
+
+    const backdrop = fixture.debugElement.query(
+      By.css('.overview-modal-backdrop'),
+    );
+    backdrop.triggerEventHandler('click', {});
+    fixture.detectChanges();
+    expect(fixture.debugElement.query(By.css('.overview-modal'))).toBeNull();
+  });
+
+  it('should keep empty defaults when overview request fails', async () => {
+    await setup({ ...baseUser, empRoleId: 1 }, null);
+
+    expect(fixture.componentInstance.totalEmployees).toBe(0);
+    expect(fixture.componentInstance.employeesByCity.length).toBe(0);
   });
 });
 ```
 
-- [ ] **Step 2: Run tests â€” expect FAIL**
+- [ ] **Step 2: Run specs to verify they fail**
 
-Run: `npx ng test --no-watch --browsers=ChromeHeadless --include=src/shared/layouts/auth/auth.spec.ts`
+```bash
+npx ng test --include=src/pages/dashboard/dashboard.spec.ts --browsers=ChromeHeadless --watch=false
+```
 
-Expected: FAIL (template still says â€œauth works!â€ / missing brand).
+Expected: FAIL (still static data / no Overview inject).
 
-- [ ] **Step 3: Implement Auth component TypeScript**
+- [ ] **Step 3: Implement Dashboard TS + HTML**
 
-Replace `src/shared/layouts/auth/auth.ts` with:
+Replace `src/pages/dashboard/dashboard.ts` with:
 
 ```ts
-import { AsyncPipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, NavigationEnd, Router, RouterOutlet } from '@angular/router';
-import { filter, map, startWith } from 'rxjs';
+import { Component, OnInit, inject } from '@angular/core';
+
+import { Auth } from '../../shared/services/auth/auth';
+import { Overview } from '../../shared/services/overview/overview';
+import {
+  EmployeesByCity,
+  SupervisorQuery,
+} from '../../shared/utils/interface/overview-response.interface';
 
 @Component({
-  selector: 'app-auth',
-  imports: [RouterOutlet, AsyncPipe],
-  templateUrl: './auth.html',
-  styleUrl: './auth.css',
+  selector: 'app-dashboard',
+  imports: [],
+  templateUrl: './dashboard.html',
+  styleUrl: './dashboard.css',
 })
-export class Auth {
-  private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
+export class Dashboard implements OnInit {
+  private readonly auth = inject(Auth);
+  private readonly overview = inject(Overview);
 
-  readonly features = [
-    {
-      title: 'Employees',
-      detail: 'add, edit and assign roles and sites',
-      icon: 'employees',
-    },
-    {
-      title: 'Locations',
-      detail: 'approved sites and attendance area',
-      icon: 'locations',
-    },
-    {
-      title: 'Reports',
-      detail: 'Shops & Establishment export',
-      icon: 'reports',
-    },
-  ] as const;
+  totalEmployees = 0;
+  totalCheckedIn = 0;
+  yettoCheckIn = 0;
+  employeesByCity: EmployeesByCity[] = [];
+  supervisorQueries: SupervisorQuery[] = [];
+  errorMessage = '';
 
-  private readonly childData$ = this.router.events.pipe(
-    filter((e): e is NavigationEnd => e instanceof NavigationEnd),
-    startWith(null),
-    map(() => {
-      let child = this.route.firstChild;
-      while (child?.firstChild) {
-        child = child.firstChild;
-      }
-      return child?.snapshot.data ?? {};
-    }),
-  );
+  isModalOpen = false;
 
-  readonly headline = toSignal(
-    this.childData$.pipe(map((d) => (d['headline'] as string) ?? '')),
-    { initialValue: '' },
-  );
+  get empRoleId(): number | null {
+    return this.auth.getUser()?.empRoleId ?? null;
+  }
 
-  readonly description = toSignal(
-    this.childData$.pipe(map((d) => (d['description'] as string) ?? '')),
-    { initialValue: '' },
-  );
-}
-```
+  get showNeedsReview(): boolean {
+    return this.empRoleId === 2;
+  }
 
-Note: If `AsyncPipe` is unused after `toSignal`, remove it from `imports`. Prefer the signal version above without `AsyncPipe`.
+  ngOnInit(): void {
+    this.loadOverview();
+  }
 
-Final lean imports:
+  loadOverview(): void {
+    this.overview.getOverview().subscribe({
+      next: (res) => {
+        if (!res.success || !res.data) {
+          this.resetData();
+          this.errorMessage = res.message?.trim() || 'Unable to load overview.';
+          return;
+        }
+        this.errorMessage = '';
+        this.totalEmployees = res.data.totalEmployees;
+        this.totalCheckedIn = res.data.totalCheckedIn;
+        this.yettoCheckIn = res.data.yettoCheckIn;
+        this.employeesByCity = res.data.employeesByCity ?? [];
+        this.supervisorQueries = res.data.supervisorQueries ?? [];
+      },
+      error: () => {
+        this.resetData();
+        this.errorMessage = 'Unable to load overview.';
+      },
+    });
+  }
 
-```ts
-imports: [RouterOutlet],
-```
+  percentPresent(present: number, total: number): number {
+    if (total <= 0) {
+      return 0;
+    }
+    return Math.round((present / total) * 100);
+  }
 
-- [ ] **Step 4: Implement Auth template**
+  formatCheckin(iso: string): string {
+    const date = new Date(iso);
+    if (Number.isNaN(date.getTime())) {
+      return iso;
+    }
+    return date.toLocaleString();
+  }
 
-Replace `src/shared/layouts/auth/auth.html` with:
+  openModal(): void {
+    this.isModalOpen = true;
+  }
 
-```html
-<div class="auth-shell">
-  <div class="auth-shell__glow auth-shell__glow--cool" aria-hidden="true"></div>
-  <div class="auth-shell__glow auth-shell__glow--warm" aria-hidden="true"></div>
+  closeModal(): void {
+    this.isModalOpen = false;
+  }
 
-  <div class="container auth-shell__content">
-    <div class="row align-items-center g-4 g-lg-5 min-vh-100 py-4 py-lg-0">
-      <div class="col-12 col-lg-7">
-        <div class="auth-brand mb-4">
-          <img
-            class="auth-brand__icon"
-            src="trigentLogoIcon.png"
-            alt=""
-            width="40"
-            height="40"
-          />
-          <div class="auth-brand__text">
-            <div class="auth-brand__name">TRIGENT</div>
-            <div class="auth-brand__tagline">Attendance &amp; Compliance Â· Admin portal</div>
-          </div>
-        </div>
-
-        <h1 class="auth-headline">{{ headline() }}</h1>
-        <p class="auth-description">{{ description() }}</p>
-
-        <ul class="auth-features list-unstyled mb-0">
-          @for (feature of features; track feature.title) {
-            <li class="auth-features__item">
-              <span class="auth-features__icon" [attr.data-icon]="feature.icon" aria-hidden="true"></span>
-              <span class="auth-features__copy">
-                <strong>{{ feature.title }}</strong>
-                â€” {{ feature.detail }}
-              </span>
-            </li>
-          }
-        </ul>
-      </div>
-
-      <div class="col-12 col-lg-5 d-flex justify-content-lg-end">
-        <div class="auth-outlet w-100">
-          <router-outlet />
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-```
-
-- [ ] **Step 5: Implement Auth CSS**
-
-Replace `src/shared/layouts/auth/auth.css` with:
-
-```css
-:host {
-  display: block;
-  min-height: 100vh;
-  --auth-bg: #070d1a;
-  --auth-text: #ffffff;
-  --auth-muted: #8b9cb3;
-  --auth-accent: #f5a623;
-  --auth-glass-bg: rgba(18, 28, 48, 0.55);
-  --auth-glass-border: rgba(255, 255, 255, 0.12);
-  --auth-input-bg: rgba(10, 18, 35, 0.65);
-  --font-brand: 'Instrument Serif', Georgia, serif;
-  --font-ui: 'DM Sans', system-ui, sans-serif;
-  color: var(--auth-text);
-  font-family: var(--font-ui);
-}
-
-.auth-shell {
-  position: relative;
-  isolation: isolate;
-  min-height: 100vh;
-  overflow: hidden;
-  background: var(--auth-bg);
-}
-
-.auth-shell__glow {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.auth-shell__glow--cool {
-  width: min(55vw, 520px);
-  height: min(55vw, 520px);
-  top: -12%;
-  left: -8%;
-  background: radial-gradient(circle, rgba(40, 90, 160, 0.55), transparent 70%);
-}
-
-.auth-shell__glow--warm {
-  width: min(50vw, 480px);
-  height: min(50vw, 480px);
-  right: -10%;
-  bottom: -18%;
-  background: radial-gradient(circle, rgba(180, 120, 40, 0.35), transparent 70%);
-}
-
-.auth-shell__content {
-  position: relative;
-  z-index: 1;
-}
-
-.auth-brand {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-}
-
-.auth-brand__icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-  object-fit: cover;
-  flex-shrink: 0;
-}
-
-.auth-brand__name {
-  font-family: var(--font-brand);
-  font-size: 1.55rem;
-  letter-spacing: 0.12em;
-  line-height: 1.1;
-  color: var(--auth-text);
-}
-
-.auth-brand__tagline {
-  margin-top: 0.15rem;
-  font-size: 0.8125rem;
-  color: var(--auth-muted);
-}
-
-.auth-headline {
-  margin: 0 0 1rem;
-  max-width: 14ch;
-  font-size: clamp(2.25rem, 4vw, 3rem);
-  font-weight: 700;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-}
-
-.auth-description {
-  margin: 0 0 2rem;
-  max-width: 34ch;
-  font-size: 1.05rem;
-  line-height: 1.55;
-  color: var(--auth-muted);
-}
-
-.auth-features {
-  display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
-}
-
-.auth-features__item {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  color: var(--auth-muted);
-  font-size: 0.95rem;
-  line-height: 1.4;
-}
-
-.auth-features__item strong {
-  color: #c5d0e0;
-  font-weight: 600;
-}
-
-.auth-features__icon {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 999px;
-  flex-shrink: 0;
-  background: rgba(8, 14, 28, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 0.95rem;
-}
-
-.auth-features__icon[data-icon='employees'] {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23f5a623' stroke-width='1.8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M15.75 7.5a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z'/%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M4.5 19.5a7.5 7.5 0 0115 0'/%3E%3C/svg%3E");
-}
-
-.auth-features__icon[data-icon='locations'] {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23f5a623' stroke-width='1.8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M12 21s7-4.5 7-10a7 7 0 10-14 0c0 5.5 7 10 7 10z'/%3E%3Ccircle cx='12' cy='11' r='2.25'/%3E%3C/svg%3E");
-}
-
-.auth-features__icon[data-icon='reports'] {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23f5a623' stroke-width='1.8'%3E%3Ccircle cx='12' cy='12' r='7.25'/%3E%3Cpath stroke-linecap='round' d='M12 8v4.5l2.5 1.5'/%3E%3C/svg%3E");
-}
-
-.auth-outlet {
-  max-width: 420px;
-  margin-inline: auto;
-}
-
-@media (min-width: 992px) {
-  .auth-outlet {
-    margin-inline: 0 0 auto;
+  private resetData(): void {
+    this.totalEmployees = 0;
+    this.totalCheckedIn = 0;
+    this.yettoCheckIn = 0;
+    this.employeesByCity = [];
+    this.supervisorQueries = [];
   }
 }
 ```
 
-- [ ] **Step 6: Run Auth tests â€” expect PASS**
+Replace `src/pages/dashboard/dashboard.html` with:
 
-Run: `npx ng test --no-watch --browsers=ChromeHeadless --include=src/shared/layouts/auth/auth.spec.ts`
+```html
+<section class="overview">
+  @if (errorMessage) {
+    <p class="overview-error" role="alert">{{ errorMessage }}</p>
+  }
 
-Expected: All Auth specs PASS.
+  <div class="overview-summary">
+    <article class="overview-summary__card overview-summary__card--total">
+      <div class="overview-summary__value">{{ totalEmployees }}</div>
+      <div class="overview-summary__label">Total Employees</div>
+    </article>
+    <article class="overview-summary__card overview-summary__card--checked">
+      <div class="overview-summary__value">{{ totalCheckedIn }}</div>
+      <div class="overview-summary__label">Checked In</div>
+    </article>
+    <article class="overview-summary__card overview-summary__card--pending">
+      <div class="overview-summary__value">{{ yettoCheckIn }}</div>
+      <div class="overview-summary__label">Yet to Check In</div>
+    </article>
+  </div>
 
-- [ ] **Step 7: Commit**
+  <div
+    class="overview-grid"
+    [class.overview-grid--single]="!showNeedsReview"
+  >
+    <section class="overview-card overview-locations">
+      <h2 class="overview-card__title">Attendance by location</h2>
+      <ul class="overview-locations__list">
+        @for (row of employeesByCity; track row.city) {
+          <li class="overview-locations__row">
+            <div class="overview-locations__meta">
+              <span class="overview-locations__city">{{ row.city }}</span>
+              <span class="overview-locations__count"
+                >{{ row.employeeCount }} of {{ row.totalemployeeCount }} present</span
+              >
+            </div>
+            <div class="overview-locations__track" aria-hidden="true">
+              <div
+                class="overview-locations__fill"
+                [style.width.%]="percentPresent(row.employeeCount, row.totalemployeeCount)"
+              ></div>
+            </div>
+          </li>
+        }
+      </ul>
+    </section>
+
+    @if (showNeedsReview) {
+      <section class="overview-card overview-review">
+        <div class="overview-review__header">
+          <h2 class="overview-card__title">Needs review today</h2>
+          <span class="overview-review__badge">{{ supervisorQueries.length }}</span>
+        </div>
+        <ul class="overview-review__list">
+          @for (item of supervisorQueries; track item.exceptionId) {
+            <li class="overview-review__item">
+              <div class="overview-review__person">
+                <div class="overview-review__name">{{ item.employeeName }}</div>
+                <div class="overview-review__location">
+                  {{ formatCheckin(item.checkinDatetime) }}
+                </div>
+              </div>
+              <div class="overview-review__status">{{ item.issueNote }}</div>
+            </li>
+          }
+        </ul>
+        <div class="overview-review__footer">
+          <button
+            type="button"
+            class="overview-review__action"
+            (click)="openModal()"
+          >
+            Take action
+          </button>
+        </div>
+      </section>
+    }
+  </div>
+</section>
+
+@if (isModalOpen) {
+  <div
+    class="overview-modal-backdrop"
+    (click)="closeModal()"
+    role="presentation"
+  ></div>
+  <div
+    class="overview-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="overview-modal-title"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="overview-modal__header">
+      <h2 id="overview-modal-title" class="overview-modal__title">
+        Missed check-outs · supervisor notes
+      </h2>
+      <p class="overview-modal__subtitle">
+        {{ supervisorQueries.length }} employees
+      </p>
+    </div>
+    <ul class="overview-modal__list">
+      @for (item of supervisorQueries; track item.exceptionId) {
+        <li class="overview-modal__item">
+          <div class="overview-modal__name">{{ item.employeeName }}</div>
+          <div class="overview-modal__location">
+            {{ formatCheckin(item.checkinDatetime) }}
+          </div>
+          <div class="overview-modal__note">
+            <p class="overview-modal__note-text">{{ item.issueNote }}</p>
+          </div>
+          <div class="overview-modal__actions">
+            <button type="button" class="overview-modal__decline">Decline</button>
+            <button type="button" class="overview-modal__approve">Approve</button>
+          </div>
+        </li>
+      }
+    </ul>
+    <div class="overview-modal__footer">
+      <button
+        type="button"
+        class="overview-modal__close"
+        (click)="closeModal()"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+}
+```
+
+Add minimal error style at the top of `dashboard.css` (keep existing styles):
+
+```css
+.overview-error {
+  margin: 0 0 0.75rem;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid rgba(185, 28, 28, 0.25);
+  border-radius: 0.65rem;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+```
+
+- [ ] **Step 4: Run Dashboard specs to verify they pass**
 
 ```bash
-git add src/shared/layouts/auth/auth.ts src/shared/layouts/auth/auth.html src/shared/layouts/auth/auth.css src/shared/layouts/auth/auth.spec.ts
-git commit -m "feat: build auth layout shell with route-driven copy"
+npx ng test --include=src/pages/dashboard/dashboard.spec.ts --browsers=ChromeHeadless --watch=false
+```
+
+Expected: PASS.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add src/pages/dashboard/dashboard.ts src/pages/dashboard/dashboard.html src/pages/dashboard/dashboard.css src/pages/dashboard/dashboard.spec.ts
+git commit -m "feat(overview): load dashboard from overview API"
 ```
 
 ---
-

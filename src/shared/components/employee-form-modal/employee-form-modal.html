@@ -1,0 +1,336 @@
+<div class="efm-backdrop" (click)="onBackdrop()" role="presentation"></div>
+
+<div
+  class="efm-modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="efm-title"
+  (click)="$event.stopPropagation()"
+>
+  <!-- Header -->
+  <div class="efm-header">
+    @if (isEdit()) {
+      <h2 id="efm-title" class="efm-title">Edit employee</h2>
+      <p class="efm-sub">
+        {{ subtitleName() }} · Employee ID {{ subtitleEmployeeId() }}. Changes apply from today.
+      </p>
+    } @else {
+      <h2 id="efm-title" class="efm-title">Add an employee</h2>
+      <p class="efm-sub">They will use the Employee ID to set up the app on their phone.</p>
+    }
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate autocomplete="off">
+    <div class="efm-grid">
+
+      <!-- 1) Employee No (numbers only) -->
+      <div class="efm-field">
+        <label class="efm-label" for="efm-employeeNo">Employee No</label>
+        <input
+          id="efm-employeeNo"
+          type="text"
+          inputmode="numeric"
+          class="efm-input"
+          [class.efm-input--err]="f.employeeNo.invalid && f.employeeNo.touched"
+          formControlName="employeeNo"
+          placeholder="e.g. 40210"
+          (input)="onEmployeeNoInput($event)"
+        />
+        @if (f.employeeNo.invalid && f.employeeNo.touched) {
+          <span class="efm-err">
+            @if (f.employeeNo.errors?.['required']) { Employee No is required. }
+            @else if (f.employeeNo.errors?.['pattern']) { Numbers only. }
+          </span>
+        }
+      </div>
+
+      <!-- 2) Full name -->
+      <div class="efm-field">
+        <label class="efm-label" for="efm-fullName">Full name</label>
+        <input
+          id="efm-fullName"
+          type="text"
+          class="efm-input"
+          [class.efm-input--err]="f.fullName.invalid && f.fullName.touched"
+          formControlName="fullName"
+          placeholder="e.g. Deepa Nair"
+        />
+        @if (f.fullName.invalid && f.fullName.touched) {
+          <span class="efm-err">
+            @if (f.fullName.errors?.['required']) { Full name is required. }
+            @else if (f.fullName.errors?.['maxlength']) { Maximum 100 characters. }
+          </span>
+        }
+      </div>
+
+      <!-- 3) Email -->
+      <div class="efm-field">
+        <label class="efm-label" for="efm-email">Email</label>
+        <input
+          id="efm-email"
+          type="email"
+          class="efm-input"
+          [class.efm-input--err]="f.email.invalid && f.email.touched"
+          formControlName="email"
+          placeholder="e.g. name@trigent.com"
+        />
+        @if (f.email.invalid && f.email.touched) {
+          <span class="efm-err">
+            @if (f.email.errors?.['required']) { Email is required. }
+            @else if (f.email.errors?.['email']) { Enter a valid email. }
+          </span>
+        }
+      </div>
+
+      <!-- 4) Mobile number -->
+      <div class="efm-field">
+        <label class="efm-label" for="efm-mobile">Mobile number</label>
+        <input
+          id="efm-mobile"
+          type="text"
+          inputmode="tel"
+          class="efm-input"
+          [class.efm-input--err]="f.mobileNumber.invalid && f.mobileNumber.touched"
+          formControlName="mobileNumber"
+          placeholder="e.g. +91 98450 55555"
+        />
+        @if (f.mobileNumber.invalid && f.mobileNumber.touched) {
+          <span class="efm-err">
+            @if (f.mobileNumber.errors?.['required']) { Mobile number is required. }
+            @else if (f.mobileNumber.errors?.['pattern']) { Enter a valid mobile number. }
+          </span>
+        }
+      </div>
+
+      <!-- 5) Date of joining (past dates only) -->
+      <div class="efm-field">
+        <label class="efm-label" for="efm-doj">Date of joining</label>
+        <app-date-picker
+          [value]="f.dateOfJoining.value ?? ''"
+          [max]="today"
+          [disabled]="f.dateOfJoining.disabled"
+          placeholder="Select date"
+          (valueChange)="onDojChange($event)"
+        />
+        @if (f.dateOfJoining.invalid && f.dateOfJoining.touched) {
+          <span class="efm-err">Date of joining is required.</span>
+        }
+      </div>
+
+      <!-- 6) Client -->
+      <div class="efm-field">
+        <label class="efm-label" for="efm-client">Client</label>
+        <div class="efm-select-wrap">
+          <select
+            id="efm-client"
+            class="efm-select"
+            [class.efm-input--err]="f.clientId.invalid && f.clientId.touched"
+            formControlName="clientId"
+          >
+            <option [ngValue]="null" disabled>Select client</option>
+            @for (c of clients(); track c.clientId) {
+              <option [ngValue]="c.clientId">{{ c.clientName }}</option>
+            }
+          </select>
+          <i class="fa-solid fa-chevron-down efm-caret" aria-hidden="true"></i>
+        </div>
+        @if (f.clientId.invalid && f.clientId.touched) {
+          <span class="efm-err">Client is required.</span>
+        }
+      </div>
+
+      <!-- 7) Role -->
+      <div class="efm-field">
+        <label class="efm-label" for="efm-role">Role</label>
+        <div class="efm-select-wrap">
+          <select
+            id="efm-role"
+            class="efm-select"
+            [class.efm-input--err]="f.roleId.invalid && f.roleId.touched"
+            formControlName="roleId"
+          >
+            <option [ngValue]="null" disabled>Select role</option>
+            @for (r of roles(); track r.roleId) {
+              <option [ngValue]="r.roleId">{{ r.roleName }}</option>
+            }
+          </select>
+          <i class="fa-solid fa-chevron-down efm-caret" aria-hidden="true"></i>
+        </div>
+        @if (f.roleId.invalid && f.roleId.touched) {
+          <span class="efm-err">Role is required.</span>
+        }
+      </div>
+
+      <!-- 8) Designation (enabled after role is chosen) -->
+      <div class="efm-field">
+        <label class="efm-label" for="efm-designation">Designation</label>
+        <div class="efm-select-wrap">
+          <select
+            id="efm-designation"
+            class="efm-select"
+            [class.efm-input--err]="f.designationId.invalid && f.designationId.touched"
+            formControlName="designationId"
+          >
+            <option [ngValue]="null" disabled>
+              {{ selectedRoleId() == null ? 'Select a role first' : 'Select designation' }}
+            </option>
+            @for (d of designations(); track d.designationId) {
+              <option [ngValue]="d.designationId">{{ d.designationName }}</option>
+            }
+          </select>
+          <i class="fa-solid fa-chevron-down efm-caret" aria-hidden="true"></i>
+        </div>
+        @if (f.designationId.enabled && f.designationId.invalid && f.designationId.touched) {
+          <span class="efm-err">Designation is required.</span>
+        }
+      </div>
+
+      <!-- 9) Locations (multi-select) -->
+      <div class="efm-field">
+        <label class="efm-label">Locations</label>
+        <div class="efm-loc">
+          <button
+            type="button"
+            class="efm-input efm-loc__trigger"
+            [class.efm-input--err]="f.locationIds.invalid && f.locationIds.touched"
+            (click)="toggleLocationDropdown()"
+          >
+            <span
+              class="efm-loc__value"
+              [class.efm-loc__value--empty]="!selectedLocationLabel()"
+            >
+              {{ selectedLocationLabel() || 'Select locations' }}
+            </span>
+            <i class="fa-solid fa-chevron-down efm-caret efm-caret--static" aria-hidden="true"></i>
+          </button>
+
+          @if (locationDropdownOpen()) {
+            <div class="efm-loc__panel">
+              <div class="efm-loc__search">
+                <input
+                  type="text"
+                  class="efm-loc__search-input"
+                  placeholder="Search locations"
+                  [value]="locationSearch()"
+                  (input)="locationSearch.set($any($event.target).value)"
+                />
+              </div>
+
+              <ul class="efm-loc__list">
+                @for (loc of filteredLocations(); track loc.locationId) {
+                  <li class="efm-loc__item">
+                    <label class="efm-loc__option">
+                      <input
+                        type="checkbox"
+                        class="efm-loc__checkbox"
+                        [checked]="isLocationSelected(loc.locationId)"
+                        (change)="toggleLocation(loc.locationId)"
+                      />
+                      <span class="efm-loc__meta">
+                        <span class="efm-loc__name">{{ loc.locationCode }} · {{ loc.locationName }}</span>
+                        @if (loc.totalemployeeCount != null) {
+                          <span class="efm-loc__count">{{ loc.totalemployeeCount }} people</span>
+                        }
+                      </span>
+                    </label>
+                  </li>
+                } @empty {
+                  <li class="efm-loc__empty">No locations found.</li>
+                }
+              </ul>
+
+              <div class="efm-loc__footer">
+                <span class="efm-loc__selected">
+                  {{ selectedLocationIds().length }} of {{ allLocations().length }} selected
+                </span>
+                <button type="button" class="efm-loc__done" (click)="closeLocationDropdown()">
+                  Done
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+        @if (f.locationIds.invalid && f.locationIds.touched) {
+          <span class="efm-err">Select at least one location.</span>
+        }
+      </div>
+
+      <!-- 10) Supervisor -->
+      <div class="efm-field">
+        <label class="efm-label" for="efm-supervisor">Supervisor</label>
+        <div class="efm-select-wrap">
+          <select
+            id="efm-supervisor"
+            class="efm-select"
+            [class.efm-input--err]="f.supervisorId.invalid && f.supervisorId.touched"
+            formControlName="supervisorId"
+          >
+            <option [ngValue]="null">Select supervisor</option>
+            @for (s of supervisors(); track s.employeeId) {
+              <option [ngValue]="s.employeeId">{{ s.employeeName }}</option>
+            }
+          </select>
+          <i class="fa-solid fa-chevron-down efm-caret" aria-hidden="true"></i>
+        </div>
+        @if (f.supervisorId.enabled && f.supervisorId.invalid && f.supervisorId.touched) {
+          <span class="efm-err">Supervisor is required.</span>
+        }
+      </div>
+
+      <!-- 11) Account Manager -->
+      <div class="efm-field">
+        <label class="efm-label" for="efm-am">Account Manager</label>
+        <div class="efm-select-wrap">
+          <select
+            id="efm-am"
+            class="efm-select"
+            [class.efm-input--err]="f.accountManagerId.invalid && f.accountManagerId.touched"
+            formControlName="accountManagerId"
+          >
+            <option [ngValue]="null">Select account manager</option>
+            @for (a of accountManagers(); track a.employeeId) {
+              <option [ngValue]="a.employeeId">{{ a.employeeName }}</option>
+            }
+          </select>
+          <i class="fa-solid fa-chevron-down efm-caret" aria-hidden="true"></i>
+        </div>
+        @if (f.accountManagerId.invalid && f.accountManagerId.touched) {
+          <span class="efm-err">Account Manager is required.</span>
+        }
+      </div>
+    </div>
+
+    <!-- Note -->
+    @if (isEdit()) {
+      <div class="efm-note efm-note--warn">
+        <i class="fa-solid fa-triangle-exclamation efm-note__icon" aria-hidden="true"></i>
+        <p class="efm-note__text">
+          This person can mark attendance from any of their assigned locations.
+          Past records are not affected.
+        </p>
+      </div>
+    } @else {
+      <div class="efm-note">
+        <i class="fa-regular fa-circle-question efm-note__icon" aria-hidden="true"></i>
+        <p class="efm-note__text">
+          An email will be sent to the user containing their password, which they can use to log in to the mobile application.
+        </p>
+      </div>
+    }
+
+    <!-- Footer -->
+    <div class="efm-footer" [class.efm-footer--edit]="isEdit()">
+      @if (isEdit() && !restrictToLocations()) {
+        <button type="button" class="efm-btn efm-btn--danger" (click)="onDeactivate()">
+          Deactivate employee
+        </button>
+      }
+      <div class="efm-footer__right">
+        <button type="button" class="efm-btn efm-btn--cancel" (click)="onCancel()">Cancel</button>
+        <button type="submit" class="efm-btn efm-btn--save">
+          {{ isEdit() ? 'Save Changes' : 'Add Employee' }}
+        </button>
+      </div>
+    </div>
+  </form>
+</div>

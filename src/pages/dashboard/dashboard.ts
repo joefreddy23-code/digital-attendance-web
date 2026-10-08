@@ -67,12 +67,20 @@ export class Dashboard implements OnInit {
     return Math.round((present / total) * 100);
   }
 
-  formatCheckin(iso: string): string {
+  formatCheckinDate(iso: string): string {
     const date = new Date(iso);
     if (Number.isNaN(date.getTime())) {
       return iso;
     }
-    return date.toLocaleString();
+    return date.toLocaleDateString();
+  }
+
+  formatCheckinTime(iso: string): string {
+    const date = new Date(iso);
+    if (Number.isNaN(date.getTime())) {
+      return iso;
+    }
+    return date.toLocaleTimeString();
   }
 
   openModal(): void {

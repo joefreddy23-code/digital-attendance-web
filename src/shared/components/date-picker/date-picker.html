@@ -1,0 +1,72 @@
+<div class="dp">
+  <!-- Trigger input -->
+  <button
+    type="button"
+    class="dp__trigger"
+    [class.dp__trigger--open]="isOpen()"
+    [disabled]="disabled()"
+    (click)="toggle()"
+  >
+    <span class="dp__value" [class.dp__value--placeholder]="!displayValue()">
+      {{ displayValue() || placeholder() }}
+    </span>
+    <i class="fa-regular fa-calendar dp__icon" aria-hidden="true"></i>
+  </button>
+
+  <!-- Calendar popup (Bootstrap card styling) -->
+  @if (isOpen()) {
+    <div class="dp__popup card shadow border-0" role="dialog" aria-label="Choose date">
+      <div class="card-body p-2">
+        <!-- Header: month + nav -->
+        <div class="dp__header d-flex align-items-center justify-content-between px-1 pb-2">
+          <span class="dp__month fw-bold">{{ monthLabel() }}</span>
+          <div class="dp__nav btn-group" role="group" aria-label="Change month">
+            <button type="button" class="btn btn-sm btn-light dp__nav-btn" (click)="prevMonth()" aria-label="Previous month">
+              <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-light dp__nav-btn" (click)="nextMonth()" aria-label="Next month">
+              <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Grid -->
+        <table class="dp__grid">
+          <thead>
+            <tr>
+              @for (wd of weekdays; track wd) {
+                <th scope="col" class="dp__weekday">{{ wd }}</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (week of weeks(); track $index) {
+              <tr>
+                @for (cell of week; track cell.iso) {
+                  <td class="dp__cell">
+                    <button
+                      type="button"
+                      class="dp__day"
+                      [class.dp__day--muted]="!cell.inMonth"
+                      [class.dp__day--today]="cell.isToday"
+                      [class.dp__day--selected]="cell.isSelected"
+                      [disabled]="cell.disabled"
+                      (click)="select(cell)"
+                    >
+                      {{ cell.day }}
+                    </button>
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        <!-- Footer -->
+        <div class="dp__footer d-flex align-items-center justify-content-end px-1 pt-2">
+          <button type="button" class="btn btn-link btn-sm p-0 dp__link" (click)="selectToday()">Today</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -1,1 +1,153 @@
-<p>locations works!</p>
+<section class="locs">
+
+  <!-- Error banner -->
+  @if (errorMessage) {
+    <p class="locs-error" role="alert">{{ errorMessage }}</p>
+  }
+
+  <!-- Header row -->
+  <div class="locs-header">
+    <div class="locs-header__meta">
+      <p class="locs-header__count">{{ locations.length }} approved locations</p>
+      <p class="locs-header__sub">
+        Across {{ uniqueCities }} cities · {{ totalEmployees }} employees assigned
+      </p>
+    </div>
+
+    @if (isAdmin) {
+      <button type="button" class="locs-header__add" (click)="onAddLocation()">
+        <i class="fa-solid fa-plus" aria-hidden="true"></i>
+        Add Location
+      </button>
+    }
+  </div>
+
+  <!-- Empty state -->
+  @if (locations.length === 0 && !errorMessage) {
+    <p class="locs-empty">No locations found.</p>
+  }
+
+  <!-- Location cards grid -->
+  @if (locations.length > 0) {
+    <div class="locs-grid">
+      @for (loc of locations; track loc.id) {
+        <article class="locs-card">
+          <div class="locs-card__top">
+            <i class="fa-solid fa-location-dot locs-card__pin" aria-hidden="true"></i>
+            <h2 class="locs-card__title">{{ loc.code }} — {{ loc.clientName }} Site</h2>
+          </div>
+          <p class="locs-card__detail">
+            {{ loc.name }}
+            <span class="locs-card__dot" aria-hidden="true">·</span>
+            Allowed attendance area {{ formatRadius(loc.radiusInMeters) }}
+            <span class="locs-card__dot" aria-hidden="true">·</span>
+            {{ loc.totalemployeeCount }} people
+          </p>
+
+          @if (isAdmin) {
+            <div class="locs-card__actions">
+              <button
+                type="button"
+                class="locs-card__action locs-card__action--edit"
+                (click)="onEdit(loc)"
+              >
+                Edit
+              </button>
+              <button
+                type="button"
+                class="locs-card__action locs-card__action--disable"
+                (click)="onDisable(loc)"
+              >
+                Disable
+              </button>
+            </div>
+          }
+        </article>
+      }
+    </div>
+  }
+
+</section>
+
+<!-- ── Disable confirmation modal ─────────────────────────────────────────── -->
+@if (disableModalOpen) {
+  <div
+    class="locs-modal-backdrop"
+    (click)="closeDisableModal()"
+    role="presentation"
+  ></div>
+
+  <div
+    class="locs-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="disable-modal-title"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- ── Confirm state ── -->
+    @if (disableModalState === 'confirm') {
+      <div class="locs-modal__icon locs-modal__icon--warn">
+        <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+      </div>
+      <h2 id="disable-modal-title" class="locs-modal__title">Disable location?</h2>
+      <p class="locs-modal__body">
+        Are you sure you want to disable
+        <strong>{{ disablingLocation?.code }} — {{ disablingLocation?.name }}</strong>?
+      </p>
+      <div class="locs-modal__actions">
+        <button
+          type="button"
+          class="locs-modal__btn locs-modal__btn--cancel"
+          (click)="closeDisableModal()"
+          [disabled]="isDisabling"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="locs-modal__btn locs-modal__btn--confirm"
+          (click)="confirmDisable()"
+          [disabled]="isDisabling"
+        >
+          {{ isDisabling ? 'Disabling…' : 'Yes, disable' }}
+        </button>
+      </div>
+    }
+
+    <!-- ── Success state ── -->
+    @if (disableModalState === 'success') {
+      <div class="locs-modal__icon locs-modal__icon--success">
+        <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+      </div>
+      <h2 id="disable-modal-title" class="locs-modal__title">Location disabled</h2>
+      <p class="locs-modal__body">{{ disableModalMessage }}</p>
+      <div class="locs-modal__actions locs-modal__actions--center">
+        <button
+          type="button"
+          class="locs-modal__btn locs-modal__btn--done"
+          (click)="closeDisableModal()"
+        >
+          Done
+        </button>
+      </div>
+    }
+
+    <!-- ── Error state ── -->
+    @if (disableModalState === 'error') {
+      <div class="locs-modal__icon locs-modal__icon--error">
+        <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i>
+      </div>
+      <h2 id="disable-modal-title" class="locs-modal__title">Cannot disable</h2>
+      <p class="locs-modal__body">{{ disableModalMessage }}</p>
+      <div class="locs-modal__actions locs-modal__actions--center">
+        <button
+          type="button"
+          class="locs-modal__btn locs-modal__btn--done"
+          (click)="closeDisableModal()"
+        >
+          Close
+        </button>
+      </div>
+    }
+  </div>
+}

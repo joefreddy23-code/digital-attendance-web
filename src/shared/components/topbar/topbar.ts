@@ -10,9 +10,14 @@ const PAGE_TITLES: Record<string, string> = {
   '/dashboard': 'Overview',
   '/employees': 'Employees',
   '/locations': 'Locations',
+  '/locations/new': 'Locations',
   '/reports': 'Reports',
   '/attendance': 'Attendance',
 };
+
+const PAGE_TITLE_PREFIXES: Array<{ prefix: string; title: string }> = [
+  { prefix: '/locations/edit/', title: 'Locations' },
+];
 
 @Component({
   selector: 'app-topbar',
@@ -31,7 +36,13 @@ export class Topbar {
       startWith(null),
       map(() => {
         const path = this.router.url.split('?')[0];
-        return PAGE_TITLES[path] ?? 'Overview';
+        if (PAGE_TITLES[path]) {
+          return PAGE_TITLES[path];
+        }
+        const matched = PAGE_TITLE_PREFIXES.find((p) =>
+          path.startsWith(p.prefix),
+        );
+        return matched ? matched.title : 'Overview';
       }),
     ),
     { initialValue: PAGE_TITLES['/dashboard'] },

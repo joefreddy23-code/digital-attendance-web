@@ -3,9 +3,11 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter, map, startWith } from 'rxjs';
 
+import { ErrorModal } from '../../components/error-modal/error-modal';
+
 @Component({
   selector: 'app-auth',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, ErrorModal],
   templateUrl: './auth.html',
   styleUrl: './auth.css',
 })

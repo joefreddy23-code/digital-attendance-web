@@ -1,0 +1,39 @@
+@if (sessionExpired.visible()) {
+  <!-- Backdrop -->
+  <div
+    class="err-modal-backdrop"
+    (click)="dismiss()"
+    role="presentation"
+  ></div>
+
+  <!-- Dialog -->
+  <div
+    class="err-modal"
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="err-modal-title"
+    aria-describedby="err-modal-body"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="err-modal__icon">
+      <i class="fa-solid fa-lock" aria-hidden="true"></i>
+    </div>
+
+    <h2 id="err-modal-title" class="err-modal__title">Session expired</h2>
+
+    <p id="err-modal-body" class="err-modal__body">
+      Your session is no longer valid (401 Unauthorized).<br />
+      Please sign in again to continue.
+    </p>
+
+    <div class="err-modal__actions">
+      <button
+        type="button"
+        class="err-modal__btn"
+        (click)="dismiss()"
+      >
+        OK, sign in
+      </button>
+    </div>
+  </div>
+}

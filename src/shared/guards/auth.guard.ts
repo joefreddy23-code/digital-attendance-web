@@ -14,3 +14,17 @@ export const authGuard: CanActivateFn = () => {
   void router.navigateByUrl('/login');
   return false;
 };
+
+// Prevents authenticated users from reaching login / forgot-password.
+// If a session is already active, redirect straight to the dashboard.
+export const guestGuard: CanActivateFn = () => {
+  const auth = inject(Auth);
+  const router = inject(Router);
+
+  if (auth.isAuthenticated()) {
+    void router.navigateByUrl('/dashboard');
+    return false;
+  }
+
+  return true;
+};

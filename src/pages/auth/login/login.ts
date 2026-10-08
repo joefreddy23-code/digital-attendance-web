@@ -7,6 +7,7 @@ import {
 import { Router, RouterLink } from '@angular/router';
 
 import { Auth } from '../../../shared/services/auth/auth';
+import { SessionExpired } from '../../../shared/services/session-expired/session-expired';
 import { apiErrorMessage } from '../../../shared/utils/http/api-error-message';
 
 @Component({
@@ -19,6 +20,7 @@ export class Login {
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(Auth);
+  readonly sessionExpired = inject(SessionExpired);
 
   submitted = false;
   loading = false;
@@ -78,6 +80,7 @@ export class Login {
       next: (res) => {
         this.loading = false;
         if (res.success && res.data) {
+          this.sessionExpired.dismiss();
           this.auth.saveSession(res.data);
           void this.router.navigateByUrl('/dashboard');
           return;

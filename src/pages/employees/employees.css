@@ -1,0 +1,378 @@
+:host {
+  --emp-navy: #0f2137;
+  --emp-muted: #6b7280;
+  --emp-border: rgba(15, 33, 55, 0.1);
+  --emp-accent: #f5a623;
+  --emp-card-bg: #ffffff;
+  --emp-head-bg: #f1f4f9;
+  --emp-row-border: rgba(15, 33, 55, 0.07);
+  --emp-link: #1d4ed8;
+  --emp-danger: #dc2626;
+
+  display: block;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  color: var(--emp-navy);
+}
+
+.emp {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.emp-error {
+  margin: 0;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid rgba(185, 28, 28, 0.25);
+  border-radius: 0.65rem;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* ── Toolbar (filters + add) ─────────────────────────────────────────────── */
+.emp-toolbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: nowrap;
+}
+
+.emp-filters {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.emp-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.emp-field--search {
+  flex: 1 1 180px;
+  min-width: 150px;
+}
+
+.emp-field__label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--emp-muted);
+}
+
+.emp-field__input,
+.emp-field__select {
+  height: 2.5rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--emp-border);
+  border-radius: 0.6rem;
+  background: var(--emp-card-bg);
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--emp-navy);
+  outline: none;
+}
+
+.emp-field__input::placeholder {
+  color: #9ca3af;
+}
+
+.emp-field__input:focus,
+.emp-field__select:focus {
+  border-color: var(--emp-accent);
+  box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.15);
+}
+
+.emp-field--search .emp-field__input {
+  width: 100%;
+}
+
+.emp-field__input--date {
+  min-width: 150px;
+}
+
+/* Select with caret */
+.emp-field__select-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.emp-field__select {
+  width: 150px;
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 2rem;
+  cursor: pointer;
+}
+
+.emp-field__caret {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+  font-size: 0.7rem;
+  color: var(--emp-muted);
+  pointer-events: none;
+}
+
+/* Reset button */
+.emp-reset {
+  height: 2.25rem;
+  padding: 0 0.9rem;
+  border: 1px solid var(--emp-border);
+  border-radius: 0.55rem;
+  background: var(--emp-card-bg);
+  color: var(--emp-navy);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.emp-reset:hover {
+  background: var(--emp-head-bg);
+}
+
+/* Submit button */
+.emp-submit {
+  height: 2.25rem;
+  padding: 0 1rem;
+  border: 0;
+  border-radius: 0.55rem;
+  background: var(--emp-accent);
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.emp-submit:hover {
+  filter: brightness(0.96);
+}
+
+/* Add employee button */
+.emp-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 2.25rem;
+  padding: 0 0.9rem;
+  border: 0;
+  border-radius: 0.55rem;
+  background: var(--emp-accent);
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  flex: 0 0 auto;
+  align-self: flex-end;
+}
+
+.emp-add:hover {
+  filter: brightness(0.96);
+}
+
+/* ── Table ───────────────────────────────────────────────────────────────── */
+.emp-table-wrap {
+  background: var(--emp-card-bg);
+  border: 1px solid var(--emp-border);
+  border-radius: 0.85rem;
+  overflow: hidden;
+}
+
+.emp-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+/* Distribute width evenly so no column is oversized and Action
+   sits flush at the right edge (no trailing gap). */
+.emp-table th:nth-child(1),
+.emp-table td:nth-child(1) { width: 22%; }
+.emp-table th:nth-child(2),
+.emp-table td:nth-child(2) { width: 14%; }
+.emp-table th:nth-child(3),
+.emp-table td:nth-child(3) { width: 16%; }
+.emp-table th:nth-child(4),
+.emp-table td:nth-child(4) { width: 18%; }
+.emp-table th:nth-child(5),
+.emp-table td:nth-child(5) { width: 14%; }
+.emp-table th:nth-child(6),
+.emp-table td:nth-child(6) { width: 16%; }
+
+.emp-table thead th {
+  padding: 0.85rem 1.25rem;
+  background: var(--emp-head-bg);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--emp-muted);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.emp-col--center {
+  text-align: center;
+}
+
+.emp-table tbody td {
+  padding: 0.9rem 1.25rem;
+  font-size: 0.9rem;
+  color: var(--emp-navy);
+  border-top: 1px solid var(--emp-row-border);
+  vertical-align: middle;
+}
+
+.emp-cell--name {
+  font-weight: 600;
+}
+
+.emp-empty {
+  text-align: center;
+  color: var(--emp-muted);
+  padding: 1.6rem 1.25rem;
+}
+
+/* ── Status pills ────────────────────────────────────────────────────────── */
+.emp-status {
+  display: inline-block;
+  padding: 0.22rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.emp-status--in {
+  background: #e8f0fe;
+  color: #1d4ed8;
+}
+
+.emp-status--leave {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+.emp-status--pending {
+  background: #eef0f3;
+  color: #6b7280;
+}
+
+
+/* ── Row actions ─────────────────────────────────────────────────────────── */
+.emp-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.emp-action {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.emp-action--view,
+.emp-action--edit {
+  color: var(--emp-link);
+}
+
+.emp-action--toggle {
+  color: var(--emp-danger);
+}
+
+.emp-action:hover {
+  text-decoration: underline;
+}
+
+/* ── Pagination ──────────────────────────────────────────────────────────── */
+.emp-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.emp-pagination__info {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--emp-muted);
+}
+
+.emp-pagination__nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.emp-page {
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 0.5rem;
+  border: 1px solid var(--emp-border);
+  border-radius: 0.5rem;
+  background: var(--emp-card-bg);
+  font-family: inherit;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--emp-navy);
+  cursor: pointer;
+}
+
+.emp-page--nav {
+  color: var(--emp-muted);
+}
+
+.emp-page:hover:not(:disabled):not(.emp-page--active) {
+  background: var(--emp-head-bg);
+}
+
+.emp-page--active {
+  background: var(--emp-accent);
+  border-color: var(--emp-accent);
+  color: #ffffff;
+}
+
+.emp-page:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (max-width: 820px) {
+  .emp-toolbar {
+    flex-wrap: wrap;
+  }
+
+  .emp-add {
+    align-self: auto;
+  }
+
+  .emp-table-wrap {
+    overflow-x: auto;
+  }
+
+  .emp-table {
+    min-width: 720px;
+  }
+
+  .emp-pagination {
+    justify-content: space-between;
+  }
+}

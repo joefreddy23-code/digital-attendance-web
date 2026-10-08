@@ -5,7 +5,8 @@
 
 .main-shell {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;          /* fixed viewport height */
+  overflow: hidden;       /* prevent the shell itself from scrolling */
   background: #f4f6fa;
 }
 
@@ -14,9 +15,13 @@
   flex-direction: column;
   flex: 1;
   min-width: 0;
+  height: 100vh;          /* fill full height */
+  overflow: hidden;
 }
 
+/* topbar is fixed-height; page area takes the rest and scrolls */
 .main-shell__page {
   flex: 1;
+  overflow-y: auto;       /* only THIS area scrolls */
   padding: 1.25rem 1.5rem;
 }

@@ -125,7 +125,8 @@ describe('Dashboard', () => {
     const text = fixture.nativeElement.textContent as string;
     expect(text).toContain('Needs review today');
     expect(text).toContain('Joe Rosario freddy');
-    expect(text).toContain('Left early because of personal reasons,');
+    expect(text).toContain('Missed checkout');
+    expect(text).not.toContain('Left early because of personal reasons,');
 
     const takeAction = fixture.debugElement.query(
       By.css('button.overview-review__action'),
@@ -137,10 +138,11 @@ describe('Dashboard', () => {
     expect(fixture.nativeElement.textContent).toContain(
       'Missed check-outs · supervisor notes',
     );
-    expect(fixture.nativeElement.textContent).toContain(
-      'Left early because of personal reasons,',
-    );
-    expect(fixture.nativeElement.textContent).not.toContain('SUPERVISOR ·');
+    const modalText = fixture.nativeElement.textContent as string;
+    expect(modalText).toContain('Left early because of personal reasons,');
+    expect(modalText).toContain('Checkin date');
+    expect(modalText).toContain('Checkin time');
+    expect(modalText).not.toContain('SUPERVISOR ·');
 
     const closeBtn = fixture.debugElement.query(
       By.css('button.overview-modal__close'),

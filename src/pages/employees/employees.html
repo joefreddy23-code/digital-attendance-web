@@ -1,1 +1,192 @@
-<p>employees works!</p>
+<section class="emp">
+
+  <!-- Error banners -->
+  @if (fieldsError()) {
+    <p class="emp-error" role="alert">{{ fieldsError() }}</p>
+  }
+  @if (listError()) {
+    <p class="emp-error" role="alert">{{ listError() }}</p>
+  }
+
+  <!-- ── Filter / action bar ──────────────────────────────────────────────── -->
+  <div class="emp-toolbar">
+    <div class="emp-filters">
+      <div class="emp-field emp-field--search">
+        <label class="emp-field__label" for="emp-search">Search</label>
+        <input
+          id="emp-search"
+          type="text"
+          class="emp-field__input"
+          placeholder="Search employees"
+          [value]="search()"
+          (input)="search.set($any($event.target).value)"
+        />
+      </div>
+
+      <div class="emp-field">
+        <label class="emp-field__label" for="emp-location">Location</label>
+        <div class="emp-field__select-wrap">
+          <select
+            id="emp-location"
+            class="emp-field__select"
+            [value]="location()"
+            (change)="location.set($any($event.target).value)"
+          >
+            @for (opt of locationOptions(); track opt.value) {
+              <option [value]="opt.value">{{ opt.label }}</option>
+            }
+          </select>
+          <i class="fa-solid fa-chevron-down emp-field__caret" aria-hidden="true"></i>
+        </div>
+      </div>
+
+      <div class="emp-field">
+        <label class="emp-field__label" for="emp-role">Role</label>
+        <div class="emp-field__select-wrap">
+          <select
+            id="emp-role"
+            class="emp-field__select"
+            [value]="role()"
+            (change)="role.set($any($event.target).value)"
+          >
+            @for (opt of roleOptions(); track opt.value) {
+              <option [value]="opt.value">{{ opt.label }}</option>
+            }
+          </select>
+          <i class="fa-solid fa-chevron-down emp-field__caret" aria-hidden="true"></i>
+        </div>
+      </div>
+
+      <div class="emp-field">
+        <label class="emp-field__label" for="emp-date">Date</label>
+        <app-date-picker
+          class="emp-field__date"
+          [value]="date()"
+          [max]="maxDate"
+          (valueChange)="onDateChange($event)"
+        />
+      </div>
+
+      <button type="button" class="emp-reset" (click)="onReset()">Reset</button>
+      <button type="button" class="emp-submit" (click)="onSubmit()">Submit</button>
+    </div>
+
+    @if (isAdmin) {
+      <button type="button" class="emp-add" (click)="onAddEmployee()">
+        <i class="fa-solid fa-plus" aria-hidden="true"></i>
+        Add Employee
+      </button>
+    }
+  </div>
+
+  <!-- ── Table ────────────────────────────────────────────────────────────── -->
+  <div class="emp-table-wrap">
+    <table class="emp-table">
+      <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Employee ID</th>
+          <th scope="col">Role</th>
+          <th scope="col">Location</th>
+          <th scope="col">Status</th>
+          <th scope="col">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (emp of pagedEmployees(); track $index) {
+          <tr>
+            <td class="emp-cell--name">{{ emp.name }}</td>
+            <td>{{ emp.id }}</td>
+            <td>{{ emp.roleName }}</td>
+            <td>{{ formatLocations(emp.allocatedLocations) }}</td>
+            <td>
+              <span class="emp-status" [class]="statusClass(emp.status)">
+                {{ statusLabel(emp.status) }}
+              </span>
+            </td>
+            <td>
+              <div class="emp-actions">
+                <button type="button" class="emp-action emp-action--view" (click)="onView(emp)">
+                  View
+                </button>
+                <button type="button" class="emp-action emp-action--edit" (click)="onEdit(emp)">
+                  Edit
+                </button>
+                @if (isAdmin) {
+                  <button
+                    type="button"
+                    class="emp-action emp-action--toggle"
+                    (click)="onToggleActive(emp)"
+                  >
+                    Disable
+                  </button>
+                }
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="6" class="emp-empty">
+              {{ isLoading() ? 'Loading employees…' : 'No employees found.' }}
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── Pagination ───────────────────────────────────────────────────────── -->
+  <div class="emp-pagination">
+    <p class="emp-pagination__info">
+      Showing {{ rangeStart() }}–{{ rangeEnd() }} of {{ employees().length }}
+    </p>
+    <nav class="emp-pagination__nav" aria-label="Pagination">
+      <button
+        type="button"
+        class="emp-page emp-page--nav"
+        (click)="prevPage()"
+        [disabled]="currentPage() === 1"
+        aria-label="Previous page"
+      >
+        <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+      </button>
+
+      @for (p of pages(); track p) {
+        <button
+          type="button"
+          class="emp-page"
+          [class.emp-page--active]="p === currentPage()"
+          (click)="goToPage(p)"
+        >
+          {{ p }}
+        </button>
+      }
+
+      <button
+        type="button"
+        class="emp-page emp-page--nav"
+        (click)="nextPage()"
+        [disabled]="currentPage() === totalPages()"
+        aria-label="Next page"
+      >
+        <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ── Add / Edit employee modal ────────────────────────────────────────── -->
+  @if (modalOpen()) {
+    <app-employee-form-modal
+      [mode]="modalMode()"
+      [initial]="modalInitial()"
+      [fields]="fieldsData()"
+      [restrictToLocations]="!isAdmin"
+      [subtitleName]="modalSubtitleName()"
+      [subtitleEmployeeId]="modalSubtitleEmployeeId()"
+      (save)="onModalSave($event)"
+      (cancel)="onModalCancel()"
+      (deactivate)="onModalDeactivate()"
+    />
+  }
+
+</section>

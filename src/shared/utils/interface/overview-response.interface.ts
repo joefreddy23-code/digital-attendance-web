@@ -11,6 +11,7 @@ export interface SupervisorQuery {
   attendanceId: number;
   issueNote: string;
   checkinDatetime: string;
+  checkinLocCode: string;
 }
 
 export interface OverviewData {
