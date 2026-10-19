@@ -100,6 +100,19 @@
   color: var(--lf-invalid);
 }
 
+/* disabled input (e.g. location code in edit mode) */
+.lf-field__input:disabled {
+  background: #f3f4f6;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+.lf-field__hint {
+  font-size: 0.76rem;
+  font-weight: 500;
+  color: #6b7280;
+}
+
 /* ── Hint box ─────────────────────────────────────────────────────────── */
 .lf-hint {
   display: flex;

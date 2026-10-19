@@ -27,3 +27,18 @@ export interface OverviewResponse {
   data?: OverviewData;
   message?: string;
 }
+
+// ── Take action (approve a supervisor exception / missed check-out) ─────────────
+
+export interface TakeActionRequest {
+  exceptionId: number;
+  attendanceId: number;
+}
+
+export interface TakeActionResponse {
+  success: boolean;
+  data?: {
+    message?: string;
+  };
+  message?: string;
+}

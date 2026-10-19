@@ -298,6 +298,27 @@
           <span class="efm-err">Account Manager is required.</span>
         }
       </div>
+
+      <!-- 12) Profile photo (images only) -->
+      <div class="efm-field">
+        <label class="efm-label" for="efm-photo">Profile photo</label>
+        <label class="efm-file" [class.efm-input--err]="photoError()">
+          <span class="efm-file__name" [class.efm-file__name--empty]="!photoName()">
+            {{ photoName() || 'No file chosen' }}
+          </span>
+          <span class="efm-file__btn">{{ hasPhoto() ? 'Replace' : 'Upload' }}</span>
+          <input
+            id="efm-photo"
+            type="file"
+            class="efm-file__input"
+            accept="image/*"
+            (change)="onPhotoSelected($event)"
+          />
+        </label>
+        @if (photoError()) {
+          <span class="efm-err">{{ photoError() }}</span>
+        }
+      </div>
     </div>
 
     <!-- Note -->

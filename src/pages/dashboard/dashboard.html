@@ -64,6 +64,7 @@
           <button
             type="button"
             class="overview-review__action"
+            [disabled]="!hasSupervisorQueries"
             (click)="openModal()"
           >
             Take action
@@ -109,6 +110,9 @@
       </p>
     </div>
     <div class="overview-modal__body">
+    @if (approveError) {
+      <p class="overview-modal__error" role="alert">{{ approveError }}</p>
+    }
     <ul class="overview-modal__list">
       @for (item of supervisorQueries; track item.exceptionId; let last = $last) {
         <li class="overview-modal__item">
@@ -131,7 +135,14 @@
             <p class="overview-modal__note-text">{{ item.issueNote }}</p>
           </div>
           <div class="overview-modal__actions">
-            <button type="button" class="overview-modal__approve">Approve</button>
+            <button
+              type="button"
+              class="overview-modal__approve"
+              [disabled]="approvingExceptionId !== null"
+              (click)="onApprove(item)"
+            >
+              {{ approvingExceptionId === item.exceptionId ? 'Approving…' : 'Approve' }}
+            </button>
           </div>
           @if (!last) {
             <hr class="overview-modal__divider" />

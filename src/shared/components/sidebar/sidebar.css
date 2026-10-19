@@ -148,6 +148,24 @@
   padding: 0.65rem 0.7rem;
   border-radius: 0.75rem;
   background: var(--sidebar-active-bg);
+  color: var(--sidebar-text);
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    color 160ms ease;
+}
+
+.sidebar__profile:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.sidebar__profile--active {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.sidebar__profile--active .sidebar__avatar {
+  box-shadow: 0 0 0 2px rgba(245, 166, 35, 0.4);
 }
 
 :host(.sidebar--collapsed) .sidebar__profile {
@@ -174,11 +192,17 @@
   font-size: 0.9rem;
   font-weight: 600;
   line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sidebar__profile-role {
   font-size: 0.75rem;
   color: var(--sidebar-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sidebar__profile-text {

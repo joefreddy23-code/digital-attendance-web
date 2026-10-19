@@ -189,4 +189,23 @@
     />
   }
 
+  <!-- ── Deactivate (relieve) employee confirmation ──────────────────────── -->
+  <app-deactivate-employee-modal
+    [open]="deactivateModalOpen()"
+    [employeeName]="deactivateEmployeeName()"
+    [saving]="isDeactivating()"
+    [error]="deactivateError()"
+    (confirm)="onDeactivateConfirm($event)"
+    (cancel)="onDeactivateCancel()"
+  />
+
+  <!-- ── Common result modal (save success / error) ───────────────────────── -->
+  <app-result-modal
+    [open]="resultModalOpen()"
+    [variant]="resultModalVariant()"
+    [title]="resultModalTitle()"
+    [message]="resultModalMessage()"
+    (closed)="onResultModalClosed()"
+  />
+
 </section>

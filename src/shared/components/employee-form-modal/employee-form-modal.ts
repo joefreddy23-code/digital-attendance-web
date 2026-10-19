@@ -11,6 +11,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
+  AbstractControl,
   FormBuilder,
   ReactiveFormsModule,
   ValidationErrors,
@@ -41,6 +42,8 @@ export interface EmployeeFormInitial {
   locationIds?: number[];
   supervisorId?: number | null;
   accountManagerId?: number | null;
+  /** Existing profile image path from the API, e.g. "profile_image/5/123.png". */
+  profileImgPath?: string | null;
 }
 
 export interface EmployeeFormValue {
@@ -55,6 +58,17 @@ export interface EmployeeFormValue {
   locationIds: number[];
   supervisorId: number | null;
   accountManagerId: number | null;
+  /**
+   * Base64 data URL of a newly picked profile image, or null when no new image
+   * was chosen. When set, the parent must upload it (profile-img-url) before
+   * the upsert and use the returned s3Key as profileImgPath.
+   */
+  profilePhotoBase64: string | null;
+  /**
+   * The existing profile image path from the API (edit mode), or null. Used by
+   * the parent as profileImgPath when the image was NOT replaced.
+   */
+  existingProfileImgPath: string | null;
 }
 
 const ROLE_ID_EMPLOYEE = 4;
@@ -131,6 +145,21 @@ export class EmployeeFormModal {
     () => this.selectedRoleId() === ROLE_ID_SUPERVISOR,
   );
 
+  // ── Profile photo (images only) ────────────────────────────────────────
+  /** Name of the chosen image file (or existing one), shown in the picker. */
+  readonly photoName = signal<string>('');
+  /** Validation message shown when a non-image is selected. */
+  readonly photoError = signal<string>('');
+  /**
+   * True when there is a photo already (an existing one from the API, or a
+   * freshly picked file). Drives the "Replace" vs "Upload" button label.
+   */
+  readonly hasPhoto = signal<boolean>(false);
+  /** The selected image File, converted to base64 on submit. */
+  private photoFile: File | null = null;
+  /** Existing profile image path from the API, if any. */
+  private existingPhotoPath: string | null = null;
+
   // ── Location multi-select ──────────────────────────────────────────────
   readonly locationDropdownOpen = signal(false);
   readonly locationSearch = signal('');
@@ -201,8 +230,24 @@ export class EmployeeFormModal {
         supervisorId: init.supervisorId ?? null,
         accountManagerId: init.accountManagerId ?? null,
       });
+
+      // Seed the profile photo field from the existing image path, if present.
+      const path = init.profileImgPath?.trim();
+      if (path) {
+        this.existingPhotoPath = path;
+        this.photoName.set(this.fileNameFromPath(path));
+        this.hasPhoto.set(true);
+      }
     }
     this.applyRoleRules(this.selectedRoleId(), false);
+
+    // Employee No, Email and Date of Joining are immutable on edit. Their
+    // values are still submitted because onSubmit() uses getRawValue().
+    if (this.isEdit()) {
+      this.f.employeeNo.disable({ emitEvent: false });
+      this.f.email.disable({ emitEvent: false });
+      this.f.dateOfJoining.disable({ emitEvent: false });
+    }
 
     // Role 2 (Account Manager) edit: lock everything except Locations.
     if (this.restrictToLocations()) {
@@ -225,19 +270,36 @@ export class EmployeeFormModal {
   }
 
   private applyRoleRules(roleId: number | null, resetDependents: boolean): void {
-    // Designation: enabled only once a role is picked.
+    // Account Manager (role 2): Supervisor and Account Manager do not apply —
+    // they are always sent as null and the fields are locked. Designation IS
+    // applicable (the get-fields API returns designations for role 2).
+    const accountManager = roleId === ROLE_ID_ACCOUNT_MANAGER;
+
+    // Designation: required for every role, enabled once a role is picked.
     if (roleId == null) {
       this.f.designationId.disable();
     } else {
       this.f.designationId.enable();
     }
 
-    // Supervisor: disabled when the person themselves is a Supervisor.
-    if (roleId === ROLE_ID_SUPERVISOR) {
-      if (resetDependents) this.f.supervisorId.setValue(null);
+    // Supervisor: disabled when the person themselves is a Supervisor, or an
+    // Account Manager.
+    if (roleId === ROLE_ID_SUPERVISOR || accountManager) {
+      // For an Account Manager the value must always be null (even on initial
+      // load of an edit), so clear it unconditionally in that case.
+      if (resetDependents || accountManager) this.f.supervisorId.setValue(null);
       this.f.supervisorId.disable();
     } else {
       this.f.supervisorId.enable();
+    }
+
+    // Account Manager field: disabled when the person is an Account Manager
+    // (their own supervisor/AM allocations do not apply), always sent as null.
+    if (accountManager) {
+      this.f.accountManagerId.setValue(null);
+      this.f.accountManagerId.disable();
+    } else {
+      this.f.accountManagerId.enable();
     }
 
     // Supervisor + Account Manager are mandatory only for Employees.
@@ -260,7 +322,7 @@ export class EmployeeFormModal {
     });
   }
 
-  private setRequired(control: typeof this.f.supervisorId, required: boolean): void {
+  private setRequired(control: AbstractControl, required: boolean): void {
     if (required) {
       control.addValidators(Validators.required);
     } else {
@@ -285,6 +347,75 @@ export class EmployeeFormModal {
       input.value = digits;
     }
     this.f.employeeNo.setValue(digits);
+  }
+
+  // ── Profile photo ──────────────────────────────────────────────────────
+  onPhotoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0] ?? null;
+
+    if (!file) {
+      // Nothing picked — fall back to any existing image from the API.
+      this.photoFile = null;
+      this.restoreExistingPhoto();
+      this.photoError.set('');
+      return;
+    }
+
+    // Accept image file types only.
+    if (!file.type.startsWith('image/')) {
+      this.photoFile = null;
+      this.restoreExistingPhoto();
+      this.photoError.set('Only image files are allowed.');
+      input.value = '';
+      return;
+    }
+
+    this.photoFile = file;
+    this.photoName.set(file.name);
+    this.hasPhoto.set(true);
+    this.photoError.set('');
+  }
+
+  /**
+   * Sets the "required" error when no photo is present (neither a freshly
+   * picked file nor an existing image from the API). Leaves any existing
+   * message (e.g. the non-image error) untouched. Returns true when a photo
+   * is present.
+   */
+  private validatePhotoRequired(): boolean {
+    const hasPhoto = !!this.photoFile || !!this.existingPhotoPath;
+    if (!hasPhoto) {
+      this.photoError.set('Profile photo is required.');
+    }
+    return hasPhoto;
+  }
+
+  /** Restores the display to the existing API image (or empty when none). */
+  private restoreExistingPhoto(): void {
+    if (this.existingPhotoPath) {
+      this.photoName.set(this.fileNameFromPath(this.existingPhotoPath));
+      this.hasPhoto.set(true);
+    } else {
+      this.photoName.set('');
+      this.hasPhoto.set(false);
+    }
+  }
+
+  /** "profile_image/5/1791806273717.png" → "1791806273717.png". */
+  private fileNameFromPath(path: string): string {
+    const segments = path.split(/[\\/]/);
+    return segments[segments.length - 1] || path;
+  }
+
+  /** Reads the selected image File as a base64 data URL. */
+  private readPhotoAsBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(file);
+    });
   }
 
   // ── Date of joining ────────────────────────────────────────────────────
@@ -325,12 +456,47 @@ export class EmployeeFormModal {
   }
 
   // ── Submit / cancel ────────────────────────────────────────────────────
-  onSubmit(): void {
+  async onSubmit(): Promise<void> {
+    // Profile photo is mandatory. It is satisfied by a freshly picked image
+    // (add, or edit with a replacement) or an existing image carried over from
+    // the API (edit). Validate it before the form so the error always shows,
+    // even when the rest of the form is valid.
+    this.validatePhotoRequired();
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
-    this.save.emit(this.form.getRawValue() as EmployeeFormValue);
+
+    // Reject submit if the photo is missing or an invalid (non-image) file is
+    // still flagged.
+    if (this.photoError()) {
+      return;
+    }
+
+    // Convert a freshly picked image to base64 so the parent can upload it.
+    // When no new image was chosen we send null and surface the existing path
+    // instead, letting the parent reuse it unchanged.
+    let profilePhotoBase64: string | null = null;
+    if (this.photoFile) {
+      try {
+        profilePhotoBase64 = await this.readPhotoAsBase64(this.photoFile);
+      } catch {
+        this.photoError.set('Could not read the selected image. Please try again.');
+        return;
+      }
+    }
+
+    const value: EmployeeFormValue = {
+      ...(this.form.getRawValue() as Omit<
+        EmployeeFormValue,
+        'profilePhotoBase64' | 'existingProfileImgPath'
+      >),
+      profilePhotoBase64,
+      existingProfileImgPath: this.existingPhotoPath,
+    };
+
+    this.save.emit(value);
   }
 
   onCancel(): void {

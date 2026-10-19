@@ -1,0 +1,152 @@
+:host {
+  font-family: 'DM Sans', system-ui, sans-serif;
+}
+
+/* ── Backdrop ── */
+.dem-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(15, 33, 55, 0.55);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  animation: dem-fade-in 180ms ease both;
+}
+
+/* ── Dialog ── */
+.dem-modal {
+  position: fixed;
+  z-index: 100;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(400px, calc(100vw - 2rem));
+  padding: 1.75rem 1.75rem 1.5rem;
+  border-radius: 1rem;
+  background: #ffffff;
+  box-shadow: 0 20px 56px rgba(15, 33, 55, 0.22);
+  text-align: center;
+  animation: dem-slide-up 220ms ease both;
+}
+
+/* ── Icon circle ── */
+.dem-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  font-size: 1.25rem;
+  margin-bottom: 0.9rem;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+/* ── Copy ── */
+.dem-title {
+  margin: 0 0 0.4rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0f2137;
+}
+
+.dem-body {
+  margin: 0 0 1.1rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: #6b7280;
+}
+
+/* ── Field ── */
+.dem-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  text-align: left;
+  margin-bottom: 1.1rem;
+}
+
+.dem-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #0f2137;
+}
+
+.dem-err {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #dc2626;
+}
+
+.dem-error {
+  margin: 0 0 1rem;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid rgba(185, 28, 28, 0.25);
+  border-radius: 0.6rem;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: left;
+}
+
+/* ── Buttons ── */
+.dem-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
+.dem-btn {
+  height: 2.5rem;
+  padding: 0 1.25rem;
+  border-radius: 0.6rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: 0;
+  transition: filter 140ms, background 140ms;
+}
+
+.dem-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dem-btn--cancel {
+  background: #ffffff;
+  color: #0f2137;
+  border: 1px solid rgba(15, 33, 55, 0.12);
+  font-weight: 600;
+}
+
+.dem-btn--cancel:hover:not(:disabled) {
+  background: #f4f6fa;
+}
+
+.dem-btn--confirm {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.dem-btn--confirm:hover:not(:disabled) {
+  filter: brightness(0.95);
+}
+
+/* ── Animations ── */
+@keyframes dem-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes dem-slide-up {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 12px)) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}

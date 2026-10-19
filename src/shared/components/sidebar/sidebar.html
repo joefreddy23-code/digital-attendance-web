@@ -35,13 +35,17 @@
   }
 </nav>
 
-<div class="sidebar__profile">
+<a
+  class="sidebar__profile"
+  routerLink="/profile"
+  routerLinkActive="sidebar__profile--active"
+  aria-label="View profile"
+>
   <div class="sidebar__avatar" aria-hidden="true">{{ initials }}</div>
   @if (layout.sidebarExpanded()) {
     <div class="sidebar__profile-text">
       <div class="sidebar__profile-name">{{ displayName }}</div>
       <div class="sidebar__profile-role">{{ displayRole }}</div>
     </div>
-    <!-- <i class="fa-solid fa-chevron-down sidebar__chevron" aria-hidden="true"></i> -->
   }
-</div>
+</a>

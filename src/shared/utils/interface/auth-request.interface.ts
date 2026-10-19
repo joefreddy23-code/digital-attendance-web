@@ -8,3 +8,8 @@ export interface ForgotPasswordRequest {
   employeeId?: string;
   empEmail?: string;
 }
+
+export interface ChangePasswordRequest {
+  oldPassword: string;
+  newPassword: string;
+}

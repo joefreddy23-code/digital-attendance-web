@@ -1,0 +1,63 @@
+@if (open()) {
+  <!-- Backdrop -->
+  <div class="dem-backdrop" (click)="onBackdrop()" role="presentation"></div>
+
+  <!-- Dialog -->
+  <div
+    class="dem-modal"
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="dem-title"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="dem-icon">
+      <i class="fa-solid fa-user-slash" aria-hidden="true"></i>
+    </div>
+
+    <h2 id="dem-title" class="dem-title">Deactivate employee</h2>
+    <p class="dem-body">
+      @if (employeeName()) {
+        Select the relieving date for <strong>{{ employeeName() }}</strong> to
+        continue.
+      } @else {
+        Select the relieving date to continue.
+      }
+    </p>
+
+    <div class="dem-field">
+      <label class="dem-label">Relieving date</label>
+      <app-date-picker
+        [value]="relievingDate()"
+        [disabled]="saving()"
+        placeholder="Select date"
+        (valueChange)="onDateChange($event)"
+      />
+      @if (touched() && !isValid()) {
+        <span class="dem-err">Relieving date is required.</span>
+      }
+    </div>
+
+    @if (error()) {
+      <p class="dem-error" role="alert">{{ error() }}</p>
+    }
+
+    <div class="dem-actions">
+      <button
+        type="button"
+        class="dem-btn dem-btn--cancel"
+        [disabled]="saving()"
+        (click)="onCancel()"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        class="dem-btn dem-btn--confirm"
+        [disabled]="!isValid() || saving()"
+        (click)="onConfirm()"
+      >
+        {{ saving() ? 'Deactivating…' : 'Confirm' }}
+      </button>
+    </div>
+  </div>
+}

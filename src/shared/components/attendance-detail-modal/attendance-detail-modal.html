@@ -1,0 +1,107 @@
+@if (open() && record(); as rec) {
+  <!-- Backdrop -->
+  <div class="adm-backdrop" (click)="onBackdrop()" role="presentation"></div>
+
+  <!-- Dialog -->
+  <div
+    class="adm-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="adm-title"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- Header -->
+    <div class="adm-head">
+      <div class="adm-head__info">
+        <h2 id="adm-title" class="adm-title">{{ titleLine() }}</h2>
+        <p class="adm-meta">{{ metaLine() }}</p>
+      </div>
+      <button type="button" class="adm-close" (click)="onClose()">Close</button>
+    </div>
+
+    <!-- Panels -->
+    <div class="adm-panels">
+      <!-- ── Check-in (left) ───────────────────────────────────────────── -->
+      <div class="adm-panel">
+        <div class="adm-panel__head">
+          <span class="adm-panel__label">CHECK-IN</span>
+          <span class="adm-panel__time">{{ checkInTime() }}</span>
+        </div>
+
+        <div class="adm-photo">
+          @if (photoUrl(); as url) {
+            <div class="adm-photo__frame">
+              <img
+                class="adm-photo__img"
+                [class.adm-photo__img--hidden]="imgLoading()"
+                [src]="url"
+                [alt]="'Check-in selfie'"
+                (load)="onPhotoLoad()"
+                (error)="onPhotoError()"
+              />
+              @if (imgLoading()) {
+                <div class="adm-photo__loader" aria-live="polite" aria-busy="true">
+                  <span class="adm-spinner" aria-hidden="true"></span>
+                  <span class="adm-sr-only">Loading photo…</span>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="adm-photo__placeholder">
+              <i class="fa-solid fa-user" aria-hidden="true"></i>
+            </div>
+          }
+        </div>
+
+        <dl class="adm-rows">
+          <div class="adm-row">
+            <dt class="adm-row__key">Location</dt>
+            <dd class="adm-row__val">{{ checkInLocation() }}</dd>
+          </div>
+          <div class="adm-row">
+            <dt class="adm-row__key">Coordinates</dt>
+            <dd class="adm-row__val">{{ checkInCoords() }}</dd>
+          </div>
+          <!-- <div class="adm-row">
+            <dt class="adm-row__key">Time</dt>
+            <dd class="adm-row__val">{{ checkInTime() }}</dd>
+          </div> -->
+        </dl>
+      </div>
+
+      <!-- ── Check-out (right) ─────────────────────────────────────────── -->
+      <div class="adm-panel adm-panel--muted">
+        <div class="adm-panel__head">
+          <span class="adm-panel__label">CHECK-OUT</span>
+          <span class="adm-panel__head-right">
+            @if (isManualEntry()) {
+              <span class="adm-badge">Manual entry</span>
+            }
+            <span class="adm-panel__time">
+              {{ hasCheckOut() ? checkOutTime() : '—' }}
+            </span>
+          </span>
+        </div>
+
+        <div class="adm-note">
+          No photo — check-out records location only
+        </div>
+
+        <dl class="adm-rows">
+          <div class="adm-row">
+            <dt class="adm-row__key">Location</dt>
+            <dd class="adm-row__val">{{ checkOutLocation() }}</dd>
+          </div>
+          <div class="adm-row">
+            <dt class="adm-row__key">Coordinates</dt>
+            <dd class="adm-row__val">{{ checkOutCoords() }}</dd>
+          </div>
+          <!-- <div class="adm-row">
+            <dt class="adm-row__key">Time</dt>
+            <dd class="adm-row__val">{{ hasCheckOut() ? checkOutTime() : '—' }}</dd>
+          </div> -->
+        </dl>
+      </div>
+    </div>
+  </div>
+}

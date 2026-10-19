@@ -6,6 +6,7 @@ import {
   EmployeesByCity,
   SupervisorQuery,
 } from '../../shared/utils/interface/overview-response.interface';
+import { apiErrorMessage } from '../../shared/utils/http/api-error-message';
 
 @Component({
   selector: 'app-dashboard',
@@ -26,12 +27,22 @@ export class Dashboard implements OnInit {
 
   isModalOpen = false;
 
+  // The exception id currently being approved (null when idle). Used to
+  // disable that row's Approve button while the request is in flight.
+  approvingExceptionId: number | null = null;
+  // Error surfaced inside the modal if an approve call fails.
+  approveError = '';
+
   get empRoleId(): number | null {
     return this.auth.getUser()?.empRoleId ?? null;
   }
 
   get showNeedsReview(): boolean {
     return this.empRoleId === 2;
+  }
+
+  get hasSupervisorQueries(): boolean {
+    return this.supervisorQueries.length > 0;
   }
 
   ngOnInit(): void {
@@ -72,7 +83,12 @@ export class Dashboard implements OnInit {
     if (Number.isNaN(date.getTime())) {
       return iso;
     }
-    return date.toLocaleDateString();
+    // Format using the UTC components so the value shown matches the raw
+    // timestamp (e.g. ...T14:29Z) regardless of the viewer's timezone, rather
+    // than being shifted by the local offset.
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    return `${month}/${day}/${date.getUTCFullYear()}`;
   }
 
   formatCheckinTime(iso: string): string {
@@ -80,15 +96,69 @@ export class Dashboard implements OnInit {
     if (Number.isNaN(date.getTime())) {
       return iso;
     }
-    return date.toLocaleTimeString();
+    // Use UTC components (no local-timezone shift) and render as 12-hour time
+    // with AM/PM, e.g. 14:29:34 -> "2:29:34 PM".
+    let hours = date.getUTCHours();
+    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+    const seconds = String(date.getUTCSeconds()).padStart(2, '0');
+    const meridiem = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12;
+    return `${hours}:${minutes}:${seconds} ${meridiem}`;
   }
 
   openModal(): void {
+    // Guard: nothing to review means the modal has no content to show.
+    if (!this.hasSupervisorQueries) {
+      return;
+    }
+    this.approveError = '';
     this.isModalOpen = true;
   }
 
   closeModal(): void {
     this.isModalOpen = false;
+    this.approveError = '';
+    this.approvingExceptionId = null;
+  }
+
+  /**
+   * Approves a single missed check-out exception via the take-action API, then
+   * reloads the overview on success so the list reflects the change.
+   */
+  onApprove(item: SupervisorQuery): void {
+    // Ignore repeat clicks while a request is already in flight.
+    if (this.approvingExceptionId !== null) {
+      return;
+    }
+
+    this.approvingExceptionId = item.exceptionId;
+    this.approveError = '';
+
+    this.overview
+      .takeAction({
+        exceptionId: item.exceptionId,
+        attendanceId: item.attendanceId,
+      })
+      .subscribe({
+        next: (res) => {
+          this.approvingExceptionId = null;
+          if (!res.success) {
+            this.approveError =
+              res.message?.trim() || 'Unable to approve. Please try again.';
+            return;
+          }
+          // Close the modal if this was the last pending item, then refresh
+          // the overview so the data is up to date.
+          if (this.supervisorQueries.length <= 1) {
+            this.closeModal();
+          }
+          this.loadOverview();
+        },
+        error: (err) => {
+          this.approvingExceptionId = null;
+          this.approveError = apiErrorMessage(err);
+        },
+      });
   }
 
   private resetData(): void {

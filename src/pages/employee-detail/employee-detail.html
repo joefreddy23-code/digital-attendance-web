@@ -1,0 +1,107 @@
+<section class="ed">
+
+  <!-- Back link -->
+  <button type="button" class="ed-back" (click)="onBack()">
+    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+    Back to Employees
+  </button>
+
+  @if (errorMessage()) {
+    <p class="ed-error" role="alert">{{ errorMessage() }}</p>
+  }
+
+  @if (isLoading()) {
+    <div class="ed-loading" aria-live="polite">Loading employee…</div>
+  }
+
+  @if (employee(); as emp) {
+    <!-- ── Employee summary card ───────────────────────────────────────────── -->
+    <div class="ed-card ed-profile">
+      <div class="ed-profile__avatar">
+        @if (profileImgUrl(); as imgUrl) {
+          <img
+            class="ed-profile__photo"
+            [src]="imgUrl"
+            [alt]="emp.name + ' profile photo'"
+            (error)="onProfileImgError()"
+          />
+        } @else {
+          <i class="fa-solid fa-user" aria-hidden="true"></i>
+        }
+      </div>
+
+      <div class="ed-profile__info">
+        <h2 class="ed-profile__name">{{ emp.name }}</h2>
+        <p class="ed-profile__meta">{{ metaLine() }}</p>
+        <p class="ed-profile__meta ed-profile__meta--sub">{{ subMetaLine() }}</p>
+      </div>
+
+      <!-- <button type="button" class="ed-profile__edit" (click)="onEdit()">
+        Edit details
+      </button> -->
+    </div>
+
+    <!-- ── Recent attendance card ──────────────────────────────────────────── -->
+    <div class="ed-card ed-attendance">
+      <!-- <p class="ed-attendance__heading">{{ attendanceHeading() }}</p> -->
+
+      <div class="ed-table-wrap">
+        <table class="ed-table">
+          <thead>
+            <tr>
+              <th scope="col">Date</th>
+              <th scope="col">Check-in</th>
+              <th scope="col">Check-out</th>
+              <th scope="col">Duration</th>
+              <th scope="col">Location</th>
+              <th scope="col">Code</th>
+              <th scope="col" class="ed-col--action">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of rows(); track row.date) {
+              <tr>
+                <td class="ed-cell--date">{{ row.dateLabel }}</td>
+                <td>{{ row.checkIn }}</td>
+                <td>{{ row.checkOut }}</td>
+                <td>{{ row.hours }}</td>
+                <td>{{ row.location }}</td>
+                <td>
+                  <span class="ed-code" [class]="row.codeClass">{{ row.code }}</span>
+                </td>
+                <td class="ed-col--action">
+                  @if (row.canView) {
+                    <button type="button" class="ed-action" (click)="onViewRow(row)">
+                      View
+                    </button>
+                  } @else {
+                    <span class="ed-dash">—</span>
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="7" class="ed-empty">No attendance records found.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <p class="ed-note">
+        <i class="fa-regular fa-circle-question ed-note__icon" aria-hidden="true"></i>
+        HR can edit this record. Corrections to attendance are made by the
+        supervisor and are logged.
+      </p>
+    </div>
+  }
+
+  <!-- ── Attendance proof modal ──────────────────────────────────────────── -->
+  <app-attendance-detail-modal
+    [open]="detailOpen()"
+    [header]="detailHeader()"
+    [record]="detailRecord()"
+    (close)="onCloseDetail()"
+  />
+
+</section>

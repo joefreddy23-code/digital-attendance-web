@@ -5,10 +5,12 @@ import { Observable } from 'rxjs';
 
 import { API_ENDPOINTS } from '../../utils/config/api.config';
 import {
+  ChangePasswordRequest,
   ForgotPasswordRequest,
   LoginRequest,
 } from '../../utils/interface/auth-request.interface';
 import {
+  ChangePasswordResponse,
   ForgotPasswordResponse,
   LoginResponse,
   LoginUserData,
@@ -33,6 +35,15 @@ export class Auth {
   ): Observable<ForgotPasswordResponse> {
     return this.http.post<ForgotPasswordResponse>(
       API_ENDPOINTS.forgotPassword,
+      payload,
+    );
+  }
+
+  changePassword(
+    payload: ChangePasswordRequest,
+  ): Observable<ChangePasswordResponse> {
+    return this.http.post<ChangePasswordResponse>(
+      API_ENDPOINTS.changePassword,
       payload,
     );
   }

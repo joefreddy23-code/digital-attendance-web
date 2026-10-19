@@ -31,6 +31,9 @@
               formControlName="code"
               placeholder="e.g. BLR-1"
             />
+            @if (isEditMode) {
+              <span class="lf-field__hint">Location code can't be changed after creation.</span>
+            }
             @if (f['code'].invalid && f['code'].touched) {
               <span class="lf-field__err">
                 @if (f['code'].errors?.['required']) { Location code is required. }

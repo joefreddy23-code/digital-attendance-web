@@ -13,10 +13,12 @@ const PAGE_TITLES: Record<string, string> = {
   '/locations/new': 'Locations',
   '/reports': 'Reports',
   '/attendance': 'Attendance',
+  '/profile': 'Profile',
 };
 
 const PAGE_TITLE_PREFIXES: Array<{ prefix: string; title: string }> = [
   { prefix: '/locations/edit/', title: 'Locations' },
+  { prefix: '/employees/view/', title: 'Employees' },
 ];
 
 @Component({

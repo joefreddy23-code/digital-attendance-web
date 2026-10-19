@@ -1,0 +1,277 @@
+:host {
+  --adm-navy: #0f2137;
+  --adm-muted: #6b7280;
+  --adm-border: rgba(15, 33, 55, 0.1);
+  --adm-link: #1d4ed8;
+  --adm-panel-bg: #f6f8fb;
+  --adm-panel-head-bg: #eef2f7;
+
+  font-family: 'DM Sans', system-ui, sans-serif;
+}
+
+/* ── Backdrop ── */
+.adm-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(15, 33, 55, 0.55);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  animation: adm-fade-in 180ms ease both;
+}
+
+/* ── Dialog ── */
+.adm-modal {
+  position: fixed;
+  z-index: 100;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(640px, calc(100vw - 2rem));
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  padding: 1.5rem 1.5rem 1.6rem;
+  border-radius: 1rem;
+  background: #ffffff;
+  box-shadow: 0 20px 56px rgba(15, 33, 55, 0.22);
+  animation: adm-slide-up 220ms ease both;
+}
+
+/* ── Header ── */
+.adm-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.adm-head__info {
+  min-width: 0;
+}
+
+.adm-title {
+  margin: 0 0 0.3rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--adm-navy);
+}
+
+.adm-meta {
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--adm-muted);
+}
+
+.adm-close {
+  flex: 0 0 auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--adm-link);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.adm-close:hover {
+  text-decoration: underline;
+}
+
+/* ── Panels ── */
+.adm-panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.adm-panel {
+  border-radius: 0.75rem;
+  background: var(--adm-panel-bg);
+  overflow: hidden;
+}
+
+.adm-panel--muted {
+  background: #f1f3f6;
+}
+
+.adm-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: var(--adm-panel-head-bg);
+}
+
+.adm-panel__label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--adm-muted);
+}
+
+.adm-panel__head-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.adm-panel__time {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--adm-navy);
+}
+
+/* "Manual entry" badge shown to the left of the check-out time. */
+.adm-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: #fef7e6;
+  border: 1px solid #f3d99b;
+  color: #a9741a;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+/* ── Check-in photo ── */
+.adm-photo {
+  padding: 1rem;
+}
+
+/* Fixed-ratio frame so the selfie always fills a consistent landscape area
+   and the loader can be positioned over it. */
+.adm-photo__frame {
+  position: relative;
+  width: 100%;
+  height: 150px;
+  border-radius: 0.6rem;
+  overflow: hidden;
+  background: #e8eef7;
+}
+
+.adm-photo__img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  /* Fill the frame and keep the face centred: cover avoids distortion and the
+     slightly-raised focal point keeps a centred face in view on landscape
+     captures where the head sits in the upper-middle of the frame. */
+  object-fit: cover;
+  object-position: center 35%;
+}
+
+.adm-photo__img--hidden {
+  visibility: hidden;
+}
+
+/* Spinner overlay shown while the selfie downloads. */
+.adm-photo__loader {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: #e8eef7;
+}
+
+.adm-spinner {
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 3px solid rgba(29, 78, 216, 0.2);
+  border-top-color: #1d4ed8;
+  border-radius: 50%;
+  animation: adm-spin 700ms linear infinite;
+}
+
+.adm-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.adm-photo__placeholder {
+  width: 100%;
+  height: 150px;
+  border-radius: 0.6rem;
+  display: grid;
+  place-items: center;
+  background: #ffffff;
+  color: #8aa0d0;
+  font-size: 3rem;
+}
+
+/* ── Check-out note ── */
+.adm-note {
+  margin: 1rem 1rem 0;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid #f3d99b;
+  border-radius: 0.6rem;
+  background: #fef7e6;
+  color: #a9741a;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+/* ── Detail rows ── */
+.adm-rows {
+  margin: 0;
+  padding: 0.75rem 1rem 1rem;
+}
+
+.adm-row {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr;
+  gap: 0.5rem;
+  padding: 0.45rem 0;
+}
+
+.adm-row__key {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--adm-muted);
+}
+
+.adm-row__val {
+  margin: 0;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--adm-navy);
+}
+
+/* ── Animations ── */
+@keyframes adm-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes adm-slide-up {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 12px)) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes adm-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Responsive ── */
+@media (max-width: 560px) {
+  .adm-panels {
+    grid-template-columns: 1fr;
+  }
+}

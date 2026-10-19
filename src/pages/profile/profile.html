@@ -1,0 +1,89 @@
+<section class="profile-page">
+
+  <!-- ── Identity card ──────────────────────────────────────────────── -->
+  <div class="pf-card pf-identity">
+    <div class="pf-avatar" aria-hidden="true">{{ initials }}</div>
+    <div class="pf-identity__text">
+      <h2 class="pf-identity__name">{{ displayName }}</h2>
+      <p class="pf-identity__meta">
+        {{ displayRole }}@if (displayRole && displayEmail) { <span class="pf-dot">&middot;</span> }{{ displayEmail }}
+      </p>
+    </div>
+  </div>
+
+  <!-- ── Change password card ───────────────────────────────────────── -->
+  <div class="pf-card pf-password">
+    <h3 class="pf-card__title">Change password</h3>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate autocomplete="off">
+      <div class="pf-grid">
+
+        <div class="pf-field">
+          <label class="pf-field__label" for="pf-old">Old password</label>
+          <input
+            id="pf-old"
+            type="password"
+            class="pf-field__input"
+            [class.pf-field__input--err]="f['oldPassword'].invalid && f['oldPassword'].touched"
+            formControlName="oldPassword"
+            placeholder="Enter current password"
+          />
+          @if (f['oldPassword'].invalid && f['oldPassword'].touched) {
+            <span class="pf-field__err">Old password is required.</span>
+          }
+        </div>
+
+        <div class="pf-field">
+          <label class="pf-field__label" for="pf-new">New password</label>
+          <input
+            id="pf-new"
+            type="password"
+            class="pf-field__input"
+            [class.pf-field__input--err]="f['newPassword'].invalid && f['newPassword'].touched"
+            formControlName="newPassword"
+            placeholder="Enter new password"
+          />
+          @if (f['newPassword'].invalid && f['newPassword'].touched) {
+            <span class="pf-field__err">
+              @if (f['newPassword'].errors?.['required']) { New password is required. }
+              @else if (f['newPassword'].errors?.['minlength']) { Minimum 6 characters. }
+            </span>
+          }
+        </div>
+
+        <div class="pf-field">
+          <label class="pf-field__label" for="pf-confirm">Confirm password</label>
+          <input
+            id="pf-confirm"
+            type="password"
+            class="pf-field__input"
+            [class.pf-field__input--err]="(f['confirmPassword'].invalid && f['confirmPassword'].touched) || mismatch"
+            formControlName="confirmPassword"
+            placeholder="Re-enter new password"
+          />
+          @if (f['confirmPassword'].invalid && f['confirmPassword'].touched) {
+            <span class="pf-field__err">Please confirm your new password.</span>
+          } @else if (mismatch) {
+            <span class="pf-field__err">Passwords do not match.</span>
+          }
+        </div>
+
+      </div>
+
+      <div class="pf-actions">
+        <button type="submit" class="pf-actions__save" [disabled]="isSaving()">
+          {{ isSaving() ? 'Updating…' : 'Update password' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+</section>
+
+<app-result-modal
+  [open]="modalOpen()"
+  [variant]="modalVariant()"
+  [title]="modalTitle()"
+  [message]="modalMessage()"
+  (closed)="closeModal()"
+/>

@@ -1,0 +1,278 @@
+:host {
+  --ed-navy: #0f2137;
+  --ed-muted: #6b7280;
+  --ed-border: rgba(15, 33, 55, 0.1);
+  --ed-card-bg: #ffffff;
+  --ed-head-bg: #f1f4f9;
+  --ed-row-border: rgba(15, 33, 55, 0.07);
+  --ed-link: #1d4ed8;
+  --ed-accent: #f5a623;
+
+  display: block;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  color: var(--ed-navy);
+}
+
+.ed {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+/* ── Back link ───────────────────────────────────────────────────────────── */
+.ed-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ed-link);
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ed-back:hover {
+  text-decoration: underline;
+}
+
+/* ── Alerts / states ─────────────────────────────────────────────────────── */
+.ed-error {
+  margin: 0;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid rgba(185, 28, 28, 0.25);
+  border-radius: 0.65rem;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.ed-loading {
+  padding: 0.65rem 0.85rem;
+  color: var(--ed-muted);
+  font-size: 0.9rem;
+}
+
+/* ── Shared card ─────────────────────────────────────────────────────────── */
+.ed-card {
+  background: var(--ed-card-bg);
+  border: 1px solid var(--ed-border);
+  border-radius: 0.9rem;
+}
+
+/* ── Profile card ────────────────────────────────────────────────────────── */
+.ed-profile {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  padding: 1.25rem 1.4rem;
+}
+
+.ed-profile__avatar {
+  flex: 0 0 auto;
+  width: 3.75rem;
+  height: 3.75rem;
+  border-radius: 50%;
+  background: #e8f0fe;
+  color: #5b7bd4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  overflow: hidden;
+}
+
+.ed-profile__photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ed-profile__info {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.ed-profile__name {
+  margin: 0 0 0.3rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--ed-navy);
+}
+
+.ed-profile__meta {
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--ed-muted);
+}
+
+.ed-profile__meta--sub {
+  margin-top: 0.15rem;
+}
+
+.ed-profile__edit {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  height: 2.4rem;
+  padding: 0 1.1rem;
+  border: 1px solid var(--ed-border);
+  border-radius: 0.6rem;
+  background: var(--ed-card-bg);
+  color: var(--ed-navy);
+  font-family: inherit;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ed-profile__edit:hover {
+  background: var(--ed-head-bg);
+}
+
+/* ── Attendance card ─────────────────────────────────────────────────────── */
+.ed-attendance {
+  padding: 0;
+  overflow: hidden;
+}
+
+.ed-attendance__heading {
+  margin: 0;
+  padding: 0.95rem 1.4rem;
+  background: var(--ed-head-bg);
+  border-bottom: 1px solid var(--ed-row-border);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--ed-muted);
+}
+
+.ed-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.ed-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ed-table thead th {
+  padding: 0.75rem 1.4rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ed-muted);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.ed-table tbody td {
+  padding: 0.9rem 1.4rem;
+  font-size: 0.9rem;
+  color: var(--ed-navy);
+  border-top: 1px solid var(--ed-row-border);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.ed-cell--date {
+  font-weight: 600;
+}
+
+.ed-col--action {
+  text-align: right;
+}
+
+.ed-empty {
+  text-align: center;
+  color: var(--ed-muted);
+  padding: 1.6rem 1.4rem;
+}
+
+.ed-dash {
+  color: var(--ed-muted);
+}
+
+/* ── Code pills ──────────────────────────────────────────────────────────── */
+.ed-code {
+  display: inline-block;
+  min-width: 1.9rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.ed-code--present {
+  background: #fff5e6;
+  color: #b4700f;
+}
+
+.ed-code--weekoff {
+  background: #eef0f3;
+  color: #4b5563;
+}
+
+.ed-code--leave {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.ed-code--neutral {
+  background: #eef0f3;
+  color: #6b7280;
+}
+
+/* ── Row action ──────────────────────────────────────────────────────────── */
+.ed-action {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ed-link);
+  font-family: inherit;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ed-action:hover {
+  text-decoration: underline;
+}
+
+/* ── Footer note ─────────────────────────────────────────────────────────── */
+.ed-note {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.85rem 1.4rem 1.1rem;
+  font-size: 0.84rem;
+  color: var(--ed-muted);
+}
+
+.ed-note__icon {
+  color: var(--ed-accent);
+}
+
+@media (max-width: 720px) {
+  .ed-profile {
+    flex-wrap: wrap;
+  }
+
+  .ed-profile__edit {
+    align-self: stretch;
+    width: 100%;
+  }
+
+  .ed-table {
+    min-width: 640px;
+  }
+}

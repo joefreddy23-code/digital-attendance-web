@@ -85,6 +85,8 @@ export class LocationForm implements OnInit {
           return;
         }
         const loc = res.data.location;
+        // Location code must not change after creation.
+        this.form.controls.code.disable();
         this.form.patchValue({
           code: loc.code,
           name: loc.physicalAddress,

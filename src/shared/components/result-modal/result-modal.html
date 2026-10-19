@@ -1,0 +1,42 @@
+@if (open()) {
+  <!-- Backdrop -->
+  <div
+    class="res-modal-backdrop"
+    (click)="dismiss()"
+    role="presentation"
+  ></div>
+
+  <!-- Dialog -->
+  <div
+    class="res-modal"
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="res-modal-title"
+    aria-describedby="res-modal-body"
+    (click)="$event.stopPropagation()"
+  >
+    <div
+      class="res-modal__icon"
+      [class.res-modal__icon--success]="variant() === 'success'"
+      [class.res-modal__icon--error]="variant() === 'error'"
+    >
+      @if (variant() === 'success') {
+        <i class="fa-solid fa-check" aria-hidden="true"></i>
+      } @else {
+        <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+      }
+    </div>
+
+    <h2 id="res-modal-title" class="res-modal__title">
+      {{ title() || (variant() === 'success' ? 'Success' : 'Something went wrong') }}
+    </h2>
+
+    <p id="res-modal-body" class="res-modal__body">{{ message() }}</p>
+
+    <div class="res-modal__actions">
+      <button type="button" class="res-modal__btn" (click)="dismiss()">
+        OK
+      </button>
+    </div>
+  </div>
+}
