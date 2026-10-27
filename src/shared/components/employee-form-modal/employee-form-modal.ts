@@ -164,6 +164,8 @@ export class EmployeeFormModal {
   readonly locationDropdownOpen = signal(false);
   readonly locationSearch = signal('');
   readonly selectedLocationIds = signal<number[]>([]);
+  /** When true, the panel opens above the trigger so it stays inside the modal. */
+  readonly locationDropUp = signal(false);
 
   readonly filteredLocations = computed<FieldLocation[]>(() => {
     const term = this.locationSearch().trim().toLowerCase();
@@ -425,8 +427,42 @@ export class EmployeeFormModal {
   }
 
   // ── Location multi-select ──────────────────────────────────────────────
+  /** Approximate panel height (px) used to decide drop direction. */
+  private static readonly LOC_PANEL_HEIGHT = 320;
+
   toggleLocationDropdown(): void {
-    this.locationDropdownOpen.update((v) => !v);
+    const willOpen = !this.locationDropdownOpen();
+    if (willOpen) {
+      this.decideLocationDropDirection();
+    }
+    this.locationDropdownOpen.set(willOpen);
+  }
+
+  /**
+   * Decides whether the location panel should open downward or upward so it
+   * always stays within the scrollable modal. If the space below the trigger
+   * (up to the modal's bottom edge) can't fit the panel but the space above
+   * can, flip it upward.
+   */
+  private decideLocationDropDirection(): void {
+    const trigger = this.host.nativeElement.querySelector(
+      '.efm-loc__trigger',
+    ) as HTMLElement | null;
+    const modal = this.host.nativeElement.querySelector(
+      '.efm-modal',
+    ) as HTMLElement | null;
+    if (!trigger || !modal) {
+      this.locationDropUp.set(false);
+      return;
+    }
+
+    const triggerRect = trigger.getBoundingClientRect();
+    const modalRect = modal.getBoundingClientRect();
+    const spaceBelow = modalRect.bottom - triggerRect.bottom;
+    const spaceAbove = triggerRect.top - modalRect.top;
+    const needed = EmployeeFormModal.LOC_PANEL_HEIGHT;
+
+    this.locationDropUp.set(spaceBelow < needed && spaceAbove > spaceBelow);
   }
 
   isLocationSelected(id: number): boolean {

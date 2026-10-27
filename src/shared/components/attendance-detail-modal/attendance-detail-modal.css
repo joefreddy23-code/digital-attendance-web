@@ -138,6 +138,13 @@
   white-space: nowrap;
 }
 
+/* "Comp off" badge — same pill as the manual-entry badge, but blue. */
+.adm-badge--compoff {
+  background: #e8f0fe;
+  border-color: #aecbfa;
+  color: #1a56c4;
+}
+
 /* ── Check-in photo ── */
 .adm-photo {
   padding: 1rem;
@@ -148,7 +155,7 @@
 .adm-photo__frame {
   position: relative;
   width: 100%;
-  height: 150px;
+  height: 280px;
   border-radius: 0.6rem;
   overflow: hidden;
   background: #e8eef7;
@@ -158,11 +165,11 @@
   width: 100%;
   height: 100%;
   display: block;
-  /* Fill the frame and keep the face centred: cover avoids distortion and the
-     slightly-raised focal point keeps a centred face in view on landscape
-     captures where the head sits in the upper-middle of the frame. */
-  object-fit: cover;
-  object-position: center 35%;
+  /* Show the whole selfie without cropping — contain fits the full image
+     inside the frame (letterboxing against the frame background as needed)
+     so faces are never cut off regardless of capture orientation. */
+  object-fit: contain;
+  object-position: center;
 }
 
 .adm-photo__img--hidden {

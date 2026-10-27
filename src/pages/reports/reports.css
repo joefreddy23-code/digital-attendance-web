@@ -1,0 +1,466 @@
+:host {
+  --rpt-navy: #0f2137;
+  --rpt-muted: #6b7280;
+  --rpt-border: rgba(15, 33, 55, 0.1);
+  --rpt-accent: #f5a623;
+  --rpt-card-bg: #ffffff;
+  --rpt-link: #1d4ed8;
+  --rpt-field-bg: #ffffff;
+  --rpt-include-bg: #f4f6fa;
+
+  /* Fill the page column so the results table can scroll internally instead
+     of growing the whole page. min-height:0 lets the flex children shrink. */
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  color: var(--rpt-navy);
+}
+
+/* ── Page wrapper ── */
+.rpt {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.rpt-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 380px) minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .rpt-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Shared card ── */
+.rpt-card {
+  padding: 1.15rem 1.25rem 1.2rem;
+  background: var(--rpt-card-bg);
+  border: 1px solid var(--rpt-border);
+  border-radius: 0.9rem;
+}
+
+.rpt-card__title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--rpt-navy);
+}
+
+/* ── Generate card ── */
+.rpt-card__intro {
+  margin: 0.4rem 0 1rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--rpt-muted);
+}
+
+.rpt-field {
+  margin-bottom: 0.8rem;
+}
+
+.rpt-field__label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--rpt-navy);
+}
+
+.rpt-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.rpt-input__control {
+  width: 100%;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid var(--rpt-border);
+  border-radius: 0.6rem;
+  background: var(--rpt-field-bg);
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--rpt-navy);
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+}
+
+.rpt-input__control:focus {
+  border-color: var(--rpt-accent);
+  box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.15);
+}
+
+.rpt-input--with-icon .rpt-input__control,
+.rpt-input--select .rpt-input__control {
+  padding-right: 2.4rem;
+}
+
+.rpt-input__icon {
+  position: absolute;
+  right: 0.9rem;
+  font-size: 0.85rem;
+  color: var(--rpt-muted);
+  pointer-events: none;
+}
+
+/* ── Date range (two pickers) ── */
+.rpt-range {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rpt-range__sep {
+  color: var(--rpt-muted);
+  font-weight: 600;
+}
+
+/* ── Fields error ── */
+.rpt-error {
+  margin: 0 0 0.8rem;
+  font-size: 0.82rem;
+  color: #b42318;
+}
+
+/* ── Report includes box ── */
+.rpt-include {
+  margin: 1rem 0 1.1rem;
+  padding: 0.85rem 1rem;
+  background: var(--rpt-include-bg);
+  border-radius: 0.7rem;
+}
+
+.rpt-include__heading {
+  margin: 0 0 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--rpt-muted);
+}
+
+.rpt-include__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.rpt-include__list li {
+  position: relative;
+  padding-left: 1rem;
+  font-size: 0.88rem;
+  color: var(--rpt-navy);
+}
+
+.rpt-include__list li::before {
+  content: '·';
+  position: absolute;
+  left: 0.1rem;
+  top: -0.05rem;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--rpt-muted);
+}
+
+/* ── Generate button ── */
+.rpt-generate__btn {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border: 0;
+  border-radius: 0.6rem;
+  background: var(--rpt-accent);
+  color: var(--rpt-navy);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.rpt-generate__btn:hover:not(:disabled) {
+  filter: brightness(0.96);
+}
+
+.rpt-generate__btn:disabled {
+  background: #e5e7eb;
+  color: var(--rpt-muted);
+  cursor: not-allowed;
+}
+
+/* ── Quick links card ── */
+.rpt-quick__list {
+  margin: 1.1rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.rpt-quick__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.95rem 0;
+  border-bottom: 1px solid var(--rpt-border);
+}
+
+.rpt-quick__item:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.rpt-quick__item:first-child {
+  padding-top: 0;
+}
+
+.rpt-quick__name {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--rpt-navy);
+}
+
+.rpt-quick__sub {
+  margin: 0.2rem 0 0;
+  font-size: 0.82rem;
+  color: var(--rpt-muted);
+}
+
+.rpt-quick__download {
+  flex-shrink: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--rpt-link);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.rpt-quick__download:hover {
+  text-decoration: underline;
+}
+
+/* ── Report results view ── */
+/* Fills the page height: head + optional messages stay fixed, the sheet grows
+   and scrolls internally, the hint/preview lines sit below. */
+.rpt-result {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.rpt-result__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.9rem;
+}
+
+.rpt-result__title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--rpt-navy);
+}
+
+.rpt-result__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-shrink: 0;
+}
+
+.rpt-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.55rem;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.rpt-btn--ghost {
+  border: 1px solid var(--rpt-border);
+  background: var(--rpt-card-bg);
+  color: var(--rpt-navy);
+}
+
+.rpt-btn--ghost:hover {
+  background: #f4f6fa;
+}
+
+.rpt-btn--accent {
+  border: 0;
+  background: var(--rpt-accent);
+  color: var(--rpt-navy);
+}
+
+.rpt-btn--accent:hover {
+  filter: brightness(0.96);
+}
+
+.rpt-result__status {
+  margin: 0;
+  padding: 1rem 1.1rem;
+  background: var(--rpt-card-bg);
+  border: 1px solid var(--rpt-border);
+  border-radius: 0.6rem;
+  font-size: 0.85rem;
+  color: var(--rpt-muted);
+}
+
+.rpt-result__hint {
+  margin: 0.8rem 0 0;
+  font-size: 0.8rem;
+  color: var(--rpt-muted);
+}
+
+.rpt-result__preview {
+  margin: 0.45rem 0 0;
+  font-size: 0.78rem;
+  color: var(--rpt-muted);
+}
+
+/* ── Sheet card (grey bar + table) ── */
+/* Grows to fill the results view; the bar stays fixed and the table region
+   below it scrolls. min-height:0 is required so it can shrink in the flex
+   column and hand scrolling to the inner table. */
+.rpt-sheet {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  background: var(--rpt-card-bg);
+  border: 1px solid var(--rpt-border);
+  border-radius: 0.6rem;
+  overflow: hidden;
+}
+
+.rpt-sheet__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0.9rem;
+  background: #eef1f6;
+  border-bottom: 1px solid var(--rpt-border);
+  font-size: 0.72rem;
+  color: var(--rpt-muted);
+}
+
+.rpt-sheet__name {
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rpt-sheet__count {
+  flex-shrink: 0;
+}
+
+/* ── Results table (first 6 columns sticky, rest scroll horizontally) ── */
+/* Fills the remaining height of the sheet and scrolls internally (both axes).
+   The max-height caps it at ~20 rows + header so it never shows more than 20
+   rows at once even on very tall screens. On short screens flex:1 shrinks it
+   further so the page itself never scrolls. The sticky thead stays pinned. */
+.rpt-table-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  max-height: calc(20 * 1.98rem + 1.9rem);
+}
+
+.rpt-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.74rem;
+  white-space: nowrap;
+  color: var(--rpt-navy);
+}
+
+.rpt-table th,
+.rpt-table td {
+  padding: 0.45rem 0.6rem;
+  text-align: left;
+  border-bottom: 1px solid var(--rpt-border);
+  background: var(--rpt-card-bg);
+  vertical-align: middle;
+}
+
+.rpt-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--rpt-card-bg);
+  font-weight: 700;
+  font-size: 0.7rem;
+  color: var(--rpt-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.rpt-table tbody tr:last-child th,
+.rpt-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* Per-day / total columns: narrow, centered status code. */
+.rpt-table .rpt-day {
+  text-align: center;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.rpt-table td.rpt-day {
+  font-weight: 600;
+}
+
+/* Sticky left columns — widths/offsets are set inline per column. Content is
+   clipped to one line so a long designation or location list doesn't balloon
+   the column width (full text is available via the cell's title tooltip). */
+.rpt-table .rpt-sticky {
+  position: sticky;
+  z-index: 3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 0;
+}
+
+/* Divider after the last sticky column. */
+.rpt-table .rpt-sticky:nth-child(6) {
+  box-shadow: 1px 0 0 var(--rpt-border);
+}
+
+/* Header sticky cells sit above both the row-stick and the thead stick. */
+.rpt-table thead th.rpt-sticky {
+  z-index: 4;
+}
+
+/* The employee-name sticky column keeps its bold emphasis. */
+.rpt-table tbody td.rpt-sticky:nth-child(2) {
+  font-weight: 600;
+}

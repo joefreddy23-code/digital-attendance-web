@@ -1,1 +1,189 @@
-<p>reports works!</p>
+<section class="rpt">
+
+  @if (!showReport()) {
+    <!-- ══ Filter + quick links view ══════════════════════════════════════════ -->
+    <div class="rpt-grid">
+
+      <!-- ── Generate a report card ───────────────────────────────────────── -->
+      <article class="rpt-card rpt-generate">
+        <h2 class="rpt-card__title">Generate a report</h2>
+        <p class="rpt-card__intro">
+          Three steps. The file downloads in the format required by the Shops and
+          Establishment Act.
+        </p>
+
+        <!-- Date range -->
+        <div class="rpt-field">
+          <label class="rpt-field__label">Date range</label>
+          <div class="rpt-range">
+            <app-date-picker
+              [(value)]="startDate"
+              [max]="startMax()"
+              placeholder="Start date"
+            ></app-date-picker>
+            <span class="rpt-range__sep" aria-hidden="true">–</span>
+            <app-date-picker
+              [(value)]="endDate"
+              [max]="today"
+              [min]="endMin()"
+              placeholder="End date"
+            ></app-date-picker>
+          </div>
+        </div>
+
+        <!-- Location -->
+        <div class="rpt-field">
+          <label class="rpt-field__label">Location</label>
+          <app-multi-select
+            [options]="locationOptions()"
+            [(value)]="selectedLocations"
+            allLabel="All locations"
+            itemNoun="locations"
+          ></app-multi-select>
+        </div>
+
+        <!-- Employees -->
+        <div class="rpt-field">
+          <label class="rpt-field__label">Employees</label>
+          <app-multi-select
+            [options]="employeeOptions()"
+            [(value)]="selectedEmployees"
+            allLabel="All employees"
+            itemNoun="employees"
+          ></app-multi-select>
+        </div>
+
+        @if (fieldsError()) {
+          <p class="rpt-error">{{ fieldsError() }}</p>
+        }
+
+        <!-- What the report includes -->
+        <div class="rpt-include">
+          <p class="rpt-include__heading">THE REPORT WILL INCLUDE</p>
+          <ul class="rpt-include__list">
+            <li>Employee name and ID</li>
+            <li>Date, check-in time and check-out time</li>
+            <li>Work location and coordinates</li>
+            <li>Attendance selfie for each entry</li>
+            <li>Any supervisor corrections and the reason given</li>
+          </ul>
+        </div>
+
+        <button
+          type="button"
+          class="rpt-generate__btn"
+          [disabled]="!canGenerate()"
+          (click)="onGenerate()"
+        >
+          View Report
+        </button>
+      </article>
+
+      <!-- ── Quick links card ─────────────────────────────────────────────── -->
+      <article class="rpt-card rpt-quick">
+        <h2 class="rpt-card__title">Quick links</h2>
+
+        <ul class="rpt-quick__list">
+          @for (link of quickLinks(); track link.startDate) {
+            <li class="rpt-quick__item">
+              <div class="rpt-quick__meta">
+                <p class="rpt-quick__name">{{ link.label }}</p>
+              </div>
+              <button
+                type="button"
+                class="rpt-quick__download"
+                (click)="onQuickLink(link)"
+              >
+                View
+              </button>
+            </li>
+          }
+        </ul>
+      </article>
+
+    </div>
+  } @else {
+    <!-- ══ Report results view ════════════════════════════════════════════════ -->
+    <div class="rpt-result">
+      <header class="rpt-result__head">
+        <div class="rpt-result__heading">
+          <h2 class="rpt-result__title">{{ reportTitle() }}</h2>
+        </div>
+        <div class="rpt-result__actions">
+          <button type="button" class="rpt-btn rpt-btn--ghost" (click)="onBack()">Back</button>
+          <button
+            type="button"
+            class="rpt-btn rpt-btn--accent"
+            [disabled]="downloading() || reportRows().length === 0"
+            (click)="onDownload()"
+          >
+            {{ downloading() ? 'Preparing…' : 'Download .xlsx' }}
+          </button>
+        </div>
+      </header>
+
+      @if (downloadError()) {
+        <p class="rpt-error">{{ downloadError() }}</p>
+      }
+
+      @if (loading()) {
+        <p class="rpt-result__status">Generating report…</p>
+      } @else if (reportError()) {
+        <p class="rpt-error">{{ reportError() }}</p>
+      } @else if (reportRows().length === 0) {
+        <p class="rpt-result__status">No attendance records for this period.</p>
+      } @else {
+        <div class="rpt-sheet">
+          <div class="rpt-sheet__bar">
+            <span class="rpt-sheet__name"></span>
+            <span class="rpt-sheet__count">{{ columns().length }} columns · {{ reportRows().length }} rows</span>
+          </div>
+
+          <div class="rpt-table-wrap">
+            <table class="rpt-table">
+              <thead>
+                <tr>
+                  @for (col of columns(); track col; let i = $index) {
+                    <th
+                      [class.rpt-sticky]="i < stickyCount"
+                      [class.rpt-day]="isDayColumn(i)"
+                      [style.left.px]="i < stickyCount ? stickyLeft(i) : null"
+                      [style.min-width.px]="i < stickyCount ? stickyWidth(i) : null"
+                      [style.width.px]="i < stickyCount ? stickyWidth(i) : null"
+                    >
+                      {{ headerLabel(col) }}
+                    </th>
+                  }
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of reportRows(); track row.EmpNo) {
+                  <tr>
+                    @for (col of columns(); track col; let i = $index) {
+                      <td
+                        [class.rpt-sticky]="i < stickyCount"
+                        [class.rpt-day]="isDayColumn(i)"
+                        [style.left.px]="i < stickyCount ? stickyLeft(i) : null"
+                        [style.min-width.px]="i < stickyCount ? stickyWidth(i) : null"
+                        [style.width.px]="i < stickyCount ? stickyWidth(i) : null"
+                        [title]="i < stickyCount ? cell(row, col) : null"
+                      >
+                        {{ cell(row, col) }}
+                      </td>
+                    }
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <p class="rpt-result__hint">→ Scroll right for the rest of the month and the leave totals</p>
+        <p class="rpt-result__preview">
+          Preview shows {{ reportRows().length }} rows. The report contains every row and all day columns.
+        </p>
+      }
+    </div>
+  }
+
+</section>

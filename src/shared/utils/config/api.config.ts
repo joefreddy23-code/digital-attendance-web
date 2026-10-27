@@ -17,4 +17,5 @@ export const API_ENDPOINTS = {
   upsertEmployee: `${base}/web/upsertemployee`,
   deactivateEmployee: `${base}/web/deactivate-employee`,
   changePassword: `${base}/web/change-password`,
+  employeeMonthlyAttendance: `${base}/web/employee-monthly-attendance`,
 } as const;

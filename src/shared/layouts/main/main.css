@@ -19,9 +19,15 @@
   overflow: hidden;
 }
 
-/* topbar is fixed-height; page area takes the rest and scrolls */
+/* topbar is fixed-height; page area takes the rest and scrolls.
+   It's also a flex column so a page can opt into filling the available height
+   (its direct child gets min-height:0) and manage its own inner scrolling,
+   e.g. the Reports table. Pages that don't fill still scroll here as before. */
 .main-shell__page {
   flex: 1;
-  overflow-y: auto;       /* only THIS area scrolls */
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;       /* normal pages still scroll here */
   padding: 1.25rem 1.5rem;
 }

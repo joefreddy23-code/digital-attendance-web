@@ -67,6 +67,9 @@ export class AttendanceDetailModal {
   });
 
   // ── Check-in (left) ─────────────────────────────────────────────────────
+  /** True when the day was recorded as a compensatory off (compOff === 1). */
+  readonly isCompOff = computed(() => this.record()?.compOff === 1);
+
   readonly checkInTime = computed(() =>
     this.formatTime(this.record()?.checkinDatetime ?? null),
   );

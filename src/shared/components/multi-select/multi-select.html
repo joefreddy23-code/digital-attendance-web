@@ -1,0 +1,51 @@
+<div class="ms">
+  <!-- Trigger -->
+  <button
+    type="button"
+    class="ms__trigger"
+    [class.ms__trigger--open]="isOpen()"
+    [disabled]="disabled()"
+    (click)="toggle()"
+  >
+    <span class="ms__value">{{ summary() }}</span>
+    <i class="fa-solid fa-chevron-down ms__icon" aria-hidden="true"></i>
+  </button>
+
+  <!-- Popup -->
+  @if (isOpen()) {
+    <div class="ms__popup card shadow border-0" role="listbox" aria-label="Choose options">
+      <div class="card-body p-2">
+        @if (options().length === 0) {
+          <p class="ms__empty m-0 px-2 py-1">No options available.</p>
+        } @else {
+          <!-- Select all -->
+          <label class="ms__option ms__option--all">
+            <input
+              type="checkbox"
+              class="form-check-input ms__check"
+              [checked]="allSelected()"
+              (change)="onToggleAll()"
+            />
+            <span class="ms__label">{{ allLabel() }}</span>
+          </label>
+
+          <div class="ms__divider"></div>
+
+          <div class="ms__list">
+            @for (opt of options(); track opt.value) {
+              <label class="ms__option">
+                <input
+                  type="checkbox"
+                  class="form-check-input ms__check"
+                  [checked]="isChecked(opt.value)"
+                  (change)="onOptionToggle(opt.value)"
+                />
+                <span class="ms__label">{{ opt.label }}</span>
+              </label>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

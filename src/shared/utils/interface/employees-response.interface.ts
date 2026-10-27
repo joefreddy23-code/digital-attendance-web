@@ -33,12 +33,19 @@ export interface FieldClient {
   clientName: string;
 }
 
+export interface FieldEmployee {
+  employeeId: number;
+  employeeName: string;
+}
+
 export interface GetFieldsData {
   roles: FieldRole[];
   designation: FieldDesignation[];
   reportingEmployees: FieldReportingEmployee[];
   locations: FieldLocation[];
   clients: FieldClient[];
+  /** Flat employee list used to populate the reports employees multi-select. */
+  employees?: FieldEmployee[];
 }
 
 export interface GetFieldsResponse {
@@ -145,6 +152,12 @@ export interface AttendanceRecord {
    * mobile app (0). Shown as a "Manual entry" badge on the check-out panel.
    */
   manualEntry?: number | null;
+  /**
+   * Whether the day was recorded as a compensatory off (1) rather than a
+   * regular attendance (0). Shown as a navy "Comp off" badge on the check-in
+   * panel.
+   */
+  compOff?: number | null;
 }
 
 export interface GetEmployeeData {

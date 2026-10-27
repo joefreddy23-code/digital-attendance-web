@@ -205,7 +205,10 @@
           </button>
 
           @if (locationDropdownOpen()) {
-            <div class="efm-loc__panel">
+            <div
+              class="efm-loc__panel"
+              [class.efm-loc__panel--up]="locationDropUp()"
+            >
               <div class="efm-loc__search">
                 <input
                   type="text"
@@ -302,16 +305,23 @@
       <!-- 12) Profile photo (images only) -->
       <div class="efm-field">
         <label class="efm-label" for="efm-photo">Profile photo</label>
-        <label class="efm-file" [class.efm-input--err]="photoError()">
+        <label
+          class="efm-file"
+          [class.efm-input--err]="photoError()"
+          [class.efm-file--disabled]="restrictToLocations()"
+        >
           <span class="efm-file__name" [class.efm-file__name--empty]="!photoName()">
             {{ photoName() || 'No file chosen' }}
           </span>
-          <span class="efm-file__btn">{{ hasPhoto() ? 'Replace' : 'Upload' }}</span>
+          @if (!restrictToLocations()) {
+            <span class="efm-file__btn">{{ hasPhoto() ? 'Replace' : 'Upload' }}</span>
+          }
           <input
             id="efm-photo"
             type="file"
             class="efm-file__input"
             accept="image/*"
+            [disabled]="restrictToLocations()"
             (change)="onPhotoSelected($event)"
           />
         </label>
