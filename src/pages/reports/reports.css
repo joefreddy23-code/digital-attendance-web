@@ -450,8 +450,8 @@
   max-width: 0;
 }
 
-/* Divider after the last sticky column. */
-.rpt-table .rpt-sticky:nth-child(6) {
+/* Divider after the last sticky column (fixed set, or signature when present). */
+.rpt-table .rpt-sticky--last {
   box-shadow: 1px 0 0 var(--rpt-border);
 }
 
@@ -463,4 +463,142 @@
 /* The employee-name sticky column keeps its bold emphasis. */
 .rpt-table tbody td.rpt-sticky:nth-child(2) {
   font-weight: 600;
+}
+
+/* ── Signature sticky column (View action) ── */
+.rpt-table .rpt-sig {
+  text-align: center;
+  overflow: visible;
+}
+
+.rpt-sig__view {
+  padding: 0.2rem 0.6rem;
+  border: 1px solid var(--rpt-border);
+  border-radius: 0.4rem;
+  background: var(--rpt-card-bg);
+  color: var(--rpt-link);
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.rpt-sig__view:hover {
+  background: #f4f6fa;
+}
+
+.rpt-sig__view:focus-visible {
+  outline: none;
+  border-color: var(--rpt-accent);
+  box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.2);
+}
+
+.rpt-sig__empty {
+  color: var(--rpt-muted);
+}
+
+/* ── Signature image modal ── */
+.rpt-sig-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(15, 33, 55, 0.55);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  animation: rpt-sig-fade 160ms ease both;
+}
+
+.rpt-sig-modal {
+  position: fixed;
+  z-index: 100;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(560px, calc(100vw - 2rem));
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  padding: 1.25rem 1.25rem 1.35rem;
+  border-radius: 1rem;
+  background: #ffffff;
+  box-shadow: 0 20px 56px rgba(15, 33, 55, 0.22);
+  animation: rpt-sig-rise 200ms ease both;
+}
+
+.rpt-sig-modal__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.rpt-sig-modal__title {
+  margin: 0 0 0.25rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--rpt-navy);
+}
+
+.rpt-sig-modal__name {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--rpt-muted);
+}
+
+.rpt-sig-modal__close {
+  flex: 0 0 auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--rpt-link);
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.rpt-sig-modal__close:hover {
+  text-decoration: underline;
+}
+
+.rpt-sig-modal__body {
+  display: grid;
+  place-items: center;
+  min-height: 160px;
+  padding: 0.5rem;
+  border-radius: 0.6rem;
+  background: #f1f3f6;
+}
+
+.rpt-sig-modal__img {
+  max-width: 100%;
+  max-height: 60vh;
+  display: block;
+  object-fit: contain;
+  background: #ffffff;
+  border-radius: 0.4rem;
+}
+
+.rpt-sig-modal__error {
+  margin: 0;
+  padding: 1rem;
+  font-size: 0.85rem;
+  color: var(--rpt-muted);
+}
+
+@keyframes rpt-sig-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes rpt-sig-rise {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 12px)) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
 }

@@ -97,7 +97,7 @@
         @if (f.mobileNumber.invalid && f.mobileNumber.touched) {
           <span class="efm-err">
             @if (f.mobileNumber.errors?.['required']) { Mobile number is required. }
-            @else if (f.mobileNumber.errors?.['pattern']) { Enter a valid mobile number. }
+            @else if (f.mobileNumber.errors?.['mobile']) { Enter a valid mobile number. }
           </span>
         }
       </div>

@@ -35,6 +35,11 @@ export class Profile {
 
   readonly isSaving = signal(false);
 
+  /** Per-field visibility toggles for the password inputs. */
+  readonly showOld = signal(false);
+  readonly showNew = signal(false);
+  readonly showConfirm = signal(false);
+
   readonly modalOpen = signal(false);
   readonly modalVariant = signal<ResultModalVariant>('success');
   readonly modalTitle = signal('');
@@ -118,6 +123,18 @@ export class Profile {
         this.showModal('error', 'Something went wrong', apiErrorMessage(err));
       },
     });
+  }
+
+  toggleOld(): void {
+    this.showOld.update((v) => !v);
+  }
+
+  toggleNew(): void {
+    this.showNew.update((v) => !v);
+  }
+
+  toggleConfirm(): void {
+    this.showConfirm.update((v) => !v);
   }
 
   closeModal(): void {

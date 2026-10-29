@@ -192,10 +192,7 @@ export class EmployeeFormModal {
     employeeNo: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
     fullName: ['', [Validators.required, Validators.maxLength(100)]],
     email: ['', [Validators.required, Validators.email]],
-    mobileNumber: [
-      '',
-      [Validators.required, Validators.pattern(/^[+\d][\d\s-]{6,19}$/)],
-    ],
+    mobileNumber: ['', [Validators.required, this.validMobileNumber]],
     dateOfJoining: ['', [Validators.required]],
     clientId: [null as number | null, [Validators.required]],
     roleId: [null as number | null, [Validators.required]],
@@ -339,6 +336,41 @@ export class EmployeeFormModal {
     return Array.isArray(control.value) && control.value.length > 0
       ? null
       : { required: true };
+  }
+
+  /**
+   * Validates a mobile number. Accepts an optional "+" and country code,
+   * with spaces/dashes as separators. The 10-digit national number must be a
+   * genuine mobile number: it has to start with 6-9 and cannot be a single
+   * repeated digit (e.g. 0000000000 or 9999999999).
+   */
+  private validMobileNumber(control: {
+    value: string;
+  }): ValidationErrors | null {
+    const raw = (control.value ?? '').toString().trim();
+    if (!raw) return null; // `required` handles the empty case.
+
+    // Only digits, spaces, dashes and an optional leading "+" are allowed.
+    if (!/^\+?[\d\s-]+$/.test(raw)) return { mobile: true };
+
+    const digits = raw.replace(/\D/g, '');
+
+    // Drop a leading country code so we validate the 10-digit national number.
+    // Handles "+91 98450 55555", "0091...", "091..." and plain 10-digit input.
+    let national = digits;
+    if (raw.startsWith('+') && national.length > 10) {
+      national = national.slice(national.length - 10);
+    } else if (national.length === 12 && national.startsWith('91')) {
+      national = national.slice(2);
+    } else if (national.length === 11 && national.startsWith('0')) {
+      national = national.slice(1);
+    }
+
+    // Must be exactly 10 digits, start with 6-9, and not be all the same digit.
+    if (!/^[6-9]\d{9}$/.test(national)) return { mobile: true };
+    if (/^(\d)\1{9}$/.test(national)) return { mobile: true };
+
+    return null;
   }
 
   // ── Employee No: numbers only ──────────────────────────────────────────

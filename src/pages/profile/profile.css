@@ -109,6 +109,44 @@
   transition: border-color 140ms, box-shadow 140ms;
 }
 
+.pf-field__control {
+  position: relative;
+  display: block;
+}
+
+/* Leave room for the toggle button so text never slides under the icon. */
+.pf-field__input--pw {
+  padding-right: 2.5rem;
+}
+
+.pf-field__toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.5rem;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0.4rem;
+  background: transparent;
+  color: var(--pf-muted);
+  cursor: pointer;
+  transition: color 140ms, background 140ms;
+}
+
+.pf-field__toggle:hover {
+  color: var(--pf-navy);
+}
+
+.pf-field__toggle:focus-visible {
+  outline: none;
+  color: var(--pf-focus);
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.15);
+}
+
 .pf-field__input::placeholder {
   color: #9ca3af;
 }

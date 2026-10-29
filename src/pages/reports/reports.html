@@ -145,11 +145,13 @@
                 <tr>
                   @for (col of columns(); track col; let i = $index) {
                     <th
-                      [class.rpt-sticky]="i < stickyCount"
+                      [class.rpt-sticky]="i < stickyCount()"
+                      [class.rpt-sticky--last]="i === stickyCount() - 1"
                       [class.rpt-day]="isDayColumn(i)"
-                      [style.left.px]="i < stickyCount ? stickyLeft(i) : null"
-                      [style.min-width.px]="i < stickyCount ? stickyWidth(i) : null"
-                      [style.width.px]="i < stickyCount ? stickyWidth(i) : null"
+                      [class.rpt-sig]="isSignatureColumn(col)"
+                      [style.left.px]="i < stickyCount() ? stickyLeft(i) : null"
+                      [style.min-width.px]="i < stickyCount() ? stickyWidth(i) : null"
+                      [style.width.px]="i < stickyCount() ? stickyWidth(i) : null"
                     >
                       {{ headerLabel(col) }}
                     </th>
@@ -161,14 +163,30 @@
                   <tr>
                     @for (col of columns(); track col; let i = $index) {
                       <td
-                        [class.rpt-sticky]="i < stickyCount"
+                        [class.rpt-sticky]="i < stickyCount()"
+                        [class.rpt-sticky--last]="i === stickyCount() - 1"
                         [class.rpt-day]="isDayColumn(i)"
-                        [style.left.px]="i < stickyCount ? stickyLeft(i) : null"
-                        [style.min-width.px]="i < stickyCount ? stickyWidth(i) : null"
-                        [style.width.px]="i < stickyCount ? stickyWidth(i) : null"
-                        [title]="i < stickyCount ? cell(row, col) : null"
+                        [class.rpt-sig]="isSignatureColumn(col)"
+                        [style.left.px]="i < stickyCount() ? stickyLeft(i) : null"
+                        [style.min-width.px]="i < stickyCount() ? stickyWidth(i) : null"
+                        [style.width.px]="i < stickyCount() ? stickyWidth(i) : null"
+                        [title]="!isSignatureColumn(col) && i < stickyCount() ? cell(row, col) : null"
                       >
-                        {{ cell(row, col) }}
+                        @if (isSignatureColumn(col)) {
+                          @if (hasSignature(row)) {
+                            <button
+                              type="button"
+                              class="rpt-sig__view"
+                              (click)="onViewSignature(row)"
+                            >
+                              View
+                            </button>
+                          } @else {
+                            <span class="rpt-sig__empty">—</span>
+                          }
+                        } @else {
+                          {{ cell(row, col) }}
+                        }
                       </td>
                     }
                   </tr>
@@ -183,6 +201,46 @@
           Preview shows {{ reportRows().length }} rows. The report contains every row and all day columns.
         </p>
       }
+    </div>
+  }
+
+  <!-- ══ Signature image modal ══════════════════════════════════════════════ -->
+  @if (signatureOpen()) {
+    <div class="rpt-sig-backdrop" (click)="onCloseSignature()"></div>
+    <div
+      class="rpt-sig-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Employee signature"
+    >
+      <header class="rpt-sig-modal__head">
+        <div>
+          <h3 class="rpt-sig-modal__title">Employee signature</h3>
+          <p class="rpt-sig-modal__name">{{ signatureName() }}</p>
+        </div>
+        <button
+          type="button"
+          class="rpt-sig-modal__close"
+          (click)="onCloseSignature()"
+        >
+          Close
+        </button>
+      </header>
+
+      <div class="rpt-sig-modal__body">
+        @if (signatureFailed()) {
+          <p class="rpt-sig-modal__error">
+            The signature image could not be loaded.
+          </p>
+        } @else {
+          <img
+            class="rpt-sig-modal__img"
+            [src]="signatureUrl()"
+            alt="Signature for {{ signatureName() }}"
+            (error)="onSignatureError()"
+          />
+        }
+      </div>
     </div>
   }
 

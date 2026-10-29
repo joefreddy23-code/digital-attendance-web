@@ -7,6 +7,7 @@ import {
 } from '../../shared/components/multi-select/multi-select';
 import { EmployeesService } from '../../shared/services/employees/employees';
 import { ReportsService } from '../../shared/services/reports/reports';
+import { MEDIA_BASE_URL } from '../../shared/utils/config/api.config';
 import { apiErrorMessage } from '../../shared/utils/http/api-error-message';
 import {
   MonthlyAttendanceRequest,
@@ -35,6 +36,13 @@ const FIXED_COLUMNS = [
 
 /** Columns pinned to the right once the day columns have been laid out. */
 const TRAILING_COLUMNS = ['Total Working Days', 'Days Worked'] as const;
+
+/**
+ * The employee-signature column key. It is treated specially: pinned (sticky)
+ * alongside the fixed left columns and rendered as a "View" action that opens
+ * the signature image in a modal, rather than showing the raw URL/key.
+ */
+const SIGNATURE_COLUMN = 'EmployeeSignature';
 
 /** Row keys that are never rendered as their own column in the table. */
 const EXCLUDED_COLUMNS = new Set<string>(['Month']);
@@ -139,16 +147,44 @@ export class Reports implements OnInit {
       ...FIXED_COLUMNS,
       ...TRAILING_COLUMNS,
       ...EXCLUDED_COLUMNS,
+      SIGNATURE_COLUMN,
     ]);
 
-    // Day columns come from the first row's keys, preserving API order.
+    // Day columns come from the first row's keys, preserving API order —
+    // excluding the signature column, which is pinned left as its own sticky
+    // "View" column.
     const dayColumns = Object.keys(rows[0]).filter((k) => !known.has(k));
 
-    return [...FIXED_COLUMNS, ...dayColumns, ...TRAILING_COLUMNS];
+    const hasSignature = Object.prototype.hasOwnProperty.call(
+      rows[0],
+      SIGNATURE_COLUMN,
+    );
+
+    // Signature sits immediately after the fixed left columns so it stays in
+    // the sticky (pinned) region of the table.
+    const leading = hasSignature
+      ? [...FIXED_COLUMNS, SIGNATURE_COLUMN]
+      : [...FIXED_COLUMNS];
+
+    return [...leading, ...dayColumns, ...TRAILING_COLUMNS];
   });
 
-  /** Number of columns pinned (sticky) to the left of the table. */
-  readonly stickyCount = FIXED_COLUMNS.length;
+  /** True when the current report carries the signature column. */
+  readonly hasSignatureColumn = computed<boolean>(() => {
+    const rows = this.reportRows();
+    return (
+      rows.length > 0 &&
+      Object.prototype.hasOwnProperty.call(rows[0], SIGNATURE_COLUMN)
+    );
+  });
+
+  /**
+   * Number of columns pinned (sticky) to the left of the table: the six fixed
+   * columns, plus the signature column when present.
+   */
+  readonly stickyCount = computed<number>(
+    () => FIXED_COLUMNS.length + (this.hasSignatureColumn() ? 1 : 0),
+  );
 
   /**
    * Pixel widths for the six sticky columns, in order. Kept tight so the six
@@ -158,26 +194,94 @@ export class Reports implements OnInit {
    */
   private readonly stickyWidths = [48, 104, 66, 112, 60, 96];
 
+  /** Width (px) for the signature sticky column (the "View" action column). */
+  private readonly signatureWidth = 84;
+
   /** Width (px) for a sticky column by index. */
   stickyWidth(index: number): number {
+    if (this.isSignatureIndex(index)) return this.signatureWidth;
     return this.stickyWidths[index] ?? 120;
   }
 
   /** Cumulative left offset (px) for a sticky column by index. */
   stickyLeft(index: number): number {
     let left = 0;
-    for (let i = 0; i < index; i++) left += this.stickyWidths[i] ?? 120;
+    for (let i = 0; i < index; i++) left += this.stickyWidth(i);
     return left;
   }
 
   /** True for the per-day/total columns that render as a centered short code. */
   isDayColumn(index: number): boolean {
-    return index >= this.stickyCount;
+    return index >= this.stickyCount();
+  }
+
+  /** True when the column at this index is the pinned signature column. */
+  isSignatureIndex(index: number): boolean {
+    return this.hasSignatureColumn() && index === FIXED_COLUMNS.length;
+  }
+
+  /** True when the given column key is the signature column. */
+  isSignatureColumn(column: string): boolean {
+    return column === SIGNATURE_COLUMN;
+  }
+
+  /** True when a row actually carries a signature image to view. */
+  hasSignature(row: MonthlyAttendanceRow): boolean {
+    const value = row[SIGNATURE_COLUMN];
+    return value !== null && value !== undefined && String(value).trim() !== '';
   }
 
   /** Display label for a column header (the raw key is used to read values). */
   headerLabel(column: string): string {
+    if (column === SIGNATURE_COLUMN) return 'Signature';
     return column;
+  }
+
+  // ── Signature image modal ───────────────────────────────────────────────────
+
+  /** True while the signature modal is open. */
+  readonly signatureOpen = signal<boolean>(false);
+  /** Resolved image URL shown in the open modal, or '' when none. */
+  readonly signatureUrl = signal<string>('');
+  /** Employee name for the open modal's heading. */
+  readonly signatureName = signal<string>('');
+  /** True once the modal image fails to load. */
+  readonly signatureFailed = signal<boolean>(false);
+
+  /** Opens the signature modal for a row, resolving the image URL. */
+  onViewSignature(row: MonthlyAttendanceRow): void {
+    if (!this.hasSignature(row)) return;
+    const raw = String(row[SIGNATURE_COLUMN]).trim();
+    this.signatureUrl.set(this.resolveSignatureUrl(raw));
+    this.signatureName.set(String(row['EmpName'] ?? '').trim() || 'Signature');
+    this.signatureFailed.set(false);
+    this.signatureOpen.set(true);
+  }
+
+  /** Closes the signature modal and clears its state. */
+  onCloseSignature(): void {
+    this.signatureOpen.set(false);
+    this.signatureUrl.set('');
+    this.signatureName.set('');
+    this.signatureFailed.set(false);
+  }
+
+  /** Flags that the signature image failed to load so a message can show. */
+  onSignatureError(): void {
+    this.signatureFailed.set(true);
+  }
+
+  /**
+   * Turns the stored signature reference into a loadable image URL. Absolute
+   * URLs (data: or http(s)) are used as-is; a relative S3 object key is
+   * resolved against the configured media base.
+   */
+  private resolveSignatureUrl(value: string): string {
+    if (/^(https?:)?\/\//i.test(value) || value.startsWith('data:')) {
+      return value;
+    }
+    const key = value.replace(/^\/+/, '');
+    return `${MEDIA_BASE_URL}/${key}`;
   }
 
   ngOnInit(): void {
