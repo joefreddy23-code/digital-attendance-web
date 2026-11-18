@@ -47,16 +47,52 @@
     @if (showNeedsReview) {
       <section class="overview-card overview-review">
         <div class="overview-review__header">
-          <h2 class="overview-card__title">Needs review today</h2>
-          <span class="overview-review__badge">{{ supervisorQueries.length }}</span>
+          <h2 class="overview-card__title">Needs review</h2>
+        </div>
+        <div class="overview-review__tabs" role="tablist" aria-label="Needs review filter">
+          <button
+            type="button"
+            role="tab"
+            class="overview-review__tab"
+            [class.overview-review__tab--active]="isMissedCheckInTab"
+            [attr.aria-selected]="isMissedCheckInTab"
+            (click)="setTab('missedCheckIn')"
+          >
+            Absent / Missed checkin
+            @if (missedCheckInCount > 0) {
+              <span class="overview-review__tab-count">{{ missedCheckInCount }}</span>
+            }
+          </button>
+          <button
+            type="button"
+            role="tab"
+            class="overview-review__tab"
+            [class.overview-review__tab--active]="!isMissedCheckInTab"
+            [attr.aria-selected]="!isMissedCheckInTab"
+            (click)="setTab('missedCheckout')"
+          >
+            Missed checkout
+            @if (missedCheckoutCount > 0) {
+              <span class="overview-review__tab-count">{{ missedCheckoutCount }}</span>
+            }
+          </button>
         </div>
         <ul class="overview-review__list">
-          @for (item of supervisorQueries; track item.exceptionId) {
+          @for (item of visibleNotes; track item.exceptionId) {
             <li class="overview-review__item">
               <div class="overview-review__person">
                 <div class="overview-review__name">{{ item.employeeName }}</div>
+                @if (item.attendanceDate || item.checkinDatetime) {
+                  <div class="overview-review__date">
+                    {{ formatCheckinDate(item.attendanceDate ?? item.checkinDatetime) }}
+                  </div>
+                }
+
               </div>
-              <div class="overview-review__status">Missed checkout</div>
+              <div class="overview-review__status">
+          @if (item.roleName) {
+                  <span class="overview-role" [class.overview-role--supervisor]="item.roleName?.toLowerCase() === 'supervisor'">{{ item.roleName }}</span>
+                }              </div>
             </li>
           }
         </ul>
@@ -64,7 +100,7 @@
           <button
             type="button"
             class="overview-review__action"
-            [disabled]="!hasSupervisorQueries"
+            [disabled]="!hasExceptionNotes"
             (click)="openModal()"
           >
             Take action
@@ -91,7 +127,7 @@
     <div class="overview-modal__header">
       <div class="overview-modal__header-top">
         <h2 id="overview-modal-title" class="overview-modal__title">
-          Missed check-outs · supervisor notes
+          {{ isMissedCheckInTab ? 'Absent / Missed check-ins' : 'Missed check-outs' }} · supervisor notes
         </h2>
         <button
           type="button"
@@ -106,44 +142,97 @@
         </button>
       </div>
       <p class="overview-modal__subtitle">
-        {{ supervisorQueries.length }} employees
+        {{ visibleNotes.length }} employees
       </p>
     </div>
     <div class="overview-modal__body">
-    @if (approveError) {
-      <p class="overview-modal__error" role="alert">{{ approveError }}</p>
-    }
     <ul class="overview-modal__list">
-      @for (item of supervisorQueries; track item.exceptionId; let last = $last) {
+      @for (item of visibleNotes; track item.exceptionId; let last = $last) {
         <li class="overview-modal__item">
           <div class="overview-modal__name">{{ item.employeeName }}</div>
+          @if (item.roleName || item.attendanceDate) {
+            <div class="overview-modal__role-row">
+              @if (item.roleName) {
+                <span class="overview-role" [class.overview-role--supervisor]="item.roleName?.toLowerCase() === 'supervisor'">{{ item.roleName }}</span>
+              }
+              @if (item.attendanceDate) {
+                <span class="overview-modal__attendance-date"> Date : {{
+                  formatCheckinDate(item.attendanceDate)
+                }}</span>
+              }
+            </div>
+          }
+          @if (!isMissedCheckInTab) {
           <div class="overview-modal__meta">
             <div class="overview-modal__meta-row">
-              <span class="overview-modal__meta-label">Checkin date & time</span>
+              <span class="overview-modal__meta-label">Check-in date</span>
               <span class="overview-modal__meta-value">{{
-                formatCheckinDate(item.checkinDatetime) 
-              }} -- {{formatCheckinTime(item.checkinDatetime)}}</span>
+                formatCheckinDate(item.checkinDatetime)
+              }}</span>
+            </div>
+            <div class="overview-modal__meta-row">
+              <span class="overview-modal__meta-label">Check-in time</span>
+              <span class="overview-modal__meta-value">{{
+                formatCheckinTime(item.checkinDatetime)
+              }}</span>
             </div>
             <div class="overview-modal__meta-row">
               <span class="overview-modal__meta-label">Checkin Location</span>
               <span class="overview-modal__meta-value">{{
-                item.checkinLocCode
+                item.checkinLocCode || '-'
               }}</span>
             </div>
           </div>
+          }
           <div class="overview-modal__note">
             <p class="overview-modal__note-text">{{ item.issueNote }}</p>
           </div>
+          @if (isMissedCheckInTab) {
+            <div class="overview-modal__actions">
+              <button type="button" class="overview-modal__address" (click)="onAddress(item)">Address</button>
+              <button
+                type="button"
+                class="overview-modal__approve"
+                [disabled]="approvingExceptionId !== null"
+                (click)="onMarkAsRead(item)"
+              >
+                {{ approvingExceptionId === item.exceptionId ? 'Marking…' : 'Mark as read' }}
+              </button>
+            </div>
+          } @else {
           <div class="overview-modal__actions">
+            <div class="overview-modal__time">
+              <span class="overview-modal__time-label">Check-out time</span>
+              <button
+                type="button"
+                class="overview-modal__time-toggle"
+                [attr.aria-expanded]="openTimeFor === item.exceptionId"
+                (click)="toggleTimePanel(item)"
+              >
+                <span [class.overview-modal__time-placeholder]="!timeLabel(item)">{{
+                  timeLabel(item) || 'Select time'
+                }}</span>
+                <i class="fa-regular fa-clock" aria-hidden="true"></i>
+              </button>
+            </div>
+            <button type="button" class="overview-modal__address" (click)="onAddress(item)">Address</button>
             <button
               type="button"
               class="overview-modal__approve"
-              [disabled]="approvingExceptionId !== null"
+              [disabled]="approvingExceptionId !== null || !selectedTimes[item.exceptionId]"
               (click)="onApprove(item)"
             >
               {{ approvingExceptionId === item.exceptionId ? 'Approving…' : 'Approve' }}
             </button>
           </div>
+          }
+          @if (!isMissedCheckInTab && openTimeFor === item.exceptionId) {
+            <app-clock-time-picker
+              [value]="selectedTimes[item.exceptionId] ?? ''"
+              (valueChange)="onTimePicked(item, $event)"
+              (closed)="openTimeFor = null"
+            />
+          }
           @if (!last) {
             <hr class="overview-modal__divider" />
           }
@@ -153,3 +242,12 @@
     </div>
   </div>
 }
+
+<!-- Server-side error from take-action. Rendered last so it stacks above the review modal. -->
+<app-result-modal
+  [open]="approveError !== ''"
+  variant="error"
+  title="Unable to approve"
+  [message]="approveError"
+  (closed)="approveError = ''"
+/>

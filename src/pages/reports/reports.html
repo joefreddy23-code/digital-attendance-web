@@ -113,6 +113,14 @@
           <button type="button" class="rpt-btn rpt-btn--ghost" (click)="onBack()">Back</button>
           <button
             type="button"
+            class="rpt-btn rpt-btn--outline"
+            [disabled]="reportRows().length === 0"
+            (click)="onViewPdf()"
+          >
+            View in PDF
+          </button>
+          <button
+            type="button"
             class="rpt-btn rpt-btn--accent"
             [disabled]="downloading() || reportRows().length === 0"
             (click)="onDownload()"
@@ -135,8 +143,28 @@
       } @else {
         <div class="rpt-sheet">
           <div class="rpt-sheet__bar">
-            <span class="rpt-sheet__name"></span>
-            <span class="rpt-sheet__count">{{ columns().length }} columns · {{ reportRows().length }} rows</span>
+            <!-- Client-side search: filters by employee name or employee id -->
+            <div class="rpt-search__field">
+              <input
+                type="search"
+                class="rpt-search__input"
+                [value]="searchTerm()"
+                (input)="onSearch($any($event.target).value)"
+                placeholder="Search by employee name or ID"
+                aria-label="Search by employee name or ID"
+              />
+              @if (searchTerm()) {
+                <button
+                  type="button"
+                  class="rpt-search__clear"
+                  (click)="onClearSearch()"
+                  aria-label="Clear search"
+                >
+                  ×
+                </button>
+              }
+            </div>
+            <span class="rpt-sheet__count">{{ columns().length }} columns · {{ filteredRows().length }} rows</span>
           </div>
 
           <div class="rpt-table-wrap">
@@ -159,7 +187,7 @@
                 </tr>
               </thead>
               <tbody>
-                @for (row of reportRows(); track row.EmpNo) {
+                @for (row of filteredRows(); track row.EmpNo) {
                   <tr>
                     @for (col of columns(); track col; let i = $index) {
                       <td
@@ -196,9 +224,17 @@
           </div>
         </div>
 
+        @if (filteredRows().length === 0) {
+          <p class="rpt-result__status">No employees match “{{ searchTerm() }}”.</p>
+        }
+
         <p class="rpt-result__hint">→ Scroll right for the rest of the month and the leave totals</p>
         <p class="rpt-result__preview">
-          Preview shows {{ reportRows().length }} rows. The report contains every row and all day columns.
+          @if (searchTerm()) {
+            Showing {{ filteredRows().length }} of {{ reportRows().length }} rows. The downloaded report contains every row and all day columns.
+          } @else {
+            Preview shows {{ reportRows().length }} rows. The report contains every row and all day columns.
+          }
         </p>
       }
     </div>

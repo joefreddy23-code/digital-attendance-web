@@ -71,7 +71,7 @@ describe('Sidebar', () => {
 
     const expandedLogo = fixture.debugElement.query(By.css('img.sidebar__logo--full'));
     expect(expandedLogo).toBeTruthy();
-    expect(expandedLogo.nativeElement.getAttribute('src')).toContain('trigentLogoFullLight.png');
+    expect(expandedLogo.nativeElement.getAttribute('src')).toContain('trio_logo_horizontal@3x.png');
 
     layout.sidebarExpanded.set(false);
     fixture.detectChanges();
@@ -83,7 +83,7 @@ describe('Sidebar', () => {
 
     const collapsedLogo = fixture.debugElement.query(By.css('img.sidebar__logo--half'));
     expect(collapsedLogo).toBeTruthy();
-    expect(collapsedLogo.nativeElement.getAttribute('src')).toContain('trigentLogoHalf.png');
+    expect(collapsedLogo.nativeElement.getAttribute('src')).toContain('trio_logo_stacked.png');
   });
 
   it('should expose nav links for overview employees locations reports', () => {

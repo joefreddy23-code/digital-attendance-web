@@ -9,7 +9,10 @@
   --emp-link: #1d4ed8;
   --emp-danger: #dc2626;
 
-  display: block;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
   font-family: 'DM Sans', system-ui, sans-serif;
   color: var(--emp-navy);
 }
@@ -18,6 +21,8 @@
   display: flex;
   flex-direction: column;
   gap: 1.1rem;
+  flex: 1;
+  min-height: 0;
 }
 
 .emp-error {
@@ -187,7 +192,20 @@
   background: var(--emp-card-bg);
   border: 1px solid var(--emp-border);
   border-radius: 0.85rem;
-  overflow: hidden;
+  min-height: 0;
+  overflow: auto;
+}
+
+/* Above 10 rows per page the table scrolls internally with a sticky header. */
+.emp-table-wrap--scroll {
+  flex: 1 1 auto;
+  overflow-y: auto;
+}
+
+.emp-table-wrap .emp-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .emp-table {
@@ -196,20 +214,22 @@
   table-layout: fixed;
 }
 
-/* Distribute width evenly so no column is oversized and Action
-   sits flush at the right edge (no trailing gap). */
+/* Distribute width so no column is oversized and the Action column has
+   enough room to keep View / Edit / Disable on one line
+   without wrapping or clipping. Name and Employee ID are tightened; the
+   assigned-locations column flexes and wraps its content. */
 .emp-table th:nth-child(1),
-.emp-table td:nth-child(1) { width: 22%; }
+.emp-table td:nth-child(1) { width: 16%; }
 .emp-table th:nth-child(2),
-.emp-table td:nth-child(2) { width: 14%; }
+.emp-table td:nth-child(2) { width: 10%; }
 .emp-table th:nth-child(3),
-.emp-table td:nth-child(3) { width: 16%; }
+.emp-table td:nth-child(3) { width: 14%; }
 .emp-table th:nth-child(4),
-.emp-table td:nth-child(4) { width: 18%; }
+.emp-table td:nth-child(4) { width: 22%; }
 .emp-table th:nth-child(5),
-.emp-table td:nth-child(5) { width: 14%; }
+.emp-table td:nth-child(5) { width: 12%; }
 .emp-table th:nth-child(6),
-.emp-table td:nth-child(6) { width: 16%; }
+.emp-table td:nth-child(6) { width: 26%; }
 
 .emp-table thead th {
   padding: 0.85rem 1.25rem;
@@ -233,6 +253,22 @@
   color: var(--emp-navy);
   border-top: 1px solid var(--emp-row-border);
   vertical-align: middle;
+}
+
+/* Tighten the horizontal padding on the Action column so the four
+   actions (View / Edit / Disable) fit on one line, and
+   centre both the header label and the action buttons. */
+.emp-table thead th:nth-child(6),
+.emp-table tbody td:nth-child(6) {
+  padding-left: 0.85rem;
+  padding-right: 0.85rem;
+  text-align: center;
+}
+
+/* Allow the assigned-locations list to wrap neatly within its column. */
+.emp-table tbody td:nth-child(4) {
+  white-space: normal;
+  word-break: break-word;
 }
 
 .emp-cell--name {
@@ -275,7 +311,9 @@
 .emp-actions {
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.6rem;
+  flex-wrap: nowrap;
+  white-space: nowrap;
 }
 
 .emp-action {
@@ -286,6 +324,7 @@
   font-size: 0.86rem;
   font-weight: 600;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .emp-action--view,
@@ -297,17 +336,56 @@
   color: var(--emp-danger);
 }
 
+.emp-badge {
+  display: inline-block;
+  flex: 0 0 auto;
+  padding: 0.12rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.emp-badge--deactivated {
+  background: #fef3c7;
+  color: #b45309;
+}
+
 .emp-action:hover {
   text-decoration: underline;
 }
 
 /* ── Pagination ──────────────────────────────────────────────────────────── */
 .emp-pagination {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: 1rem;
   flex-wrap: wrap;
+}
+
+.emp-pagination__size {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-right: auto;
+  font-size: 0.82rem;
+  color: var(--emp-muted);
+}
+
+.emp-pagination__select {
+  height: 2rem;
+  padding: 0 0.5rem;
+  border: 1px solid var(--emp-border);
+  border-radius: 0.5rem;
+  background: var(--emp-card-bg);
+  font-family: inherit;
+  font-size: 0.84rem;
+  color: var(--emp-navy);
+  cursor: pointer;
 }
 
 .emp-pagination__info {
@@ -373,6 +451,7 @@
   }
 
   .emp-pagination {
+  flex: 0 0 auto;
     justify-content: space-between;
   }
 }

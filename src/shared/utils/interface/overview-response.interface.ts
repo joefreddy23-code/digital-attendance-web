@@ -4,14 +4,20 @@ export interface EmployeesByCity {
   employeeCount: number;
 }
 
-export interface SupervisorQuery {
+export interface ExceptionNote {
   exceptionId: number;
   employeeId: number;
   employeeName: string;
+  roleName: string;
   attendanceId: number;
   issueNote: string;
-  checkinDatetime: string;
-  checkinLocCode: string;
+  /** ISO date; null when the exception is for a missed check-in. */
+  attendanceDate: string | null;
+  /** 1 when the employee missed check-in, otherwise 0. */
+  missedCheckIn: number;
+  /** null when there is no check-in (missed check-in). */
+  checkinDatetime: string | null;
+  checkinLocCode: string | null;
 }
 
 export interface OverviewData {
@@ -19,7 +25,7 @@ export interface OverviewData {
   totalCheckedIn: number;
   yettoCheckIn: number;
   employeesByCity: EmployeesByCity[];
-  supervisorQueries?: SupervisorQuery[];
+  exceptionNotes?: ExceptionNote[];
 }
 
 export interface OverviewResponse {
@@ -33,6 +39,13 @@ export interface OverviewResponse {
 export interface TakeActionRequest {
   exceptionId: number;
   attendanceId: number;
+  /**
+   * "YYYY-MM-DD HH:mm:ss" - same date as the check-in, time picked by the
+   * supervisor. null when marking a missed check-in note as read.
+   */
+  checkOutTime: string | null;
+  /** 1 for a missed check-in (manual entry) note, 0 for a missed check-out. */
+  manualEntry: 0 | 1;
 }
 
 export interface TakeActionResponse {
@@ -41,4 +54,6 @@ export interface TakeActionResponse {
     message?: string;
   };
   message?: string;
+  /** Detail returned on failure, e.g. "Checkout time must be greater than check-in time". */
+  error?: string;
 }

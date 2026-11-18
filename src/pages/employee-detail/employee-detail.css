@@ -186,8 +186,9 @@
   font-weight: 600;
 }
 
-.ed-col--action {
-  text-align: right;
+.ed-table thead th.ed-col--action,
+.ed-table tbody td.ed-col--action {
+  text-align: center;
 }
 
 .ed-empty {

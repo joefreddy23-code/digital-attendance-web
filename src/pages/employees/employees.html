@@ -17,7 +17,7 @@
           id="emp-search"
           type="text"
           class="emp-field__input"
-          placeholder="Search employees"
+          placeholder="Search by employee name"
           [value]="search()"
           (input)="search.set($any($event.target).value)"
         />
@@ -80,7 +80,7 @@
   </div>
 
   <!-- ── Table ────────────────────────────────────────────────────────────── -->
-  <div class="emp-table-wrap">
+  <div class="emp-table-wrap" [class.emp-table-wrap--scroll]="scrollable()">
     <table class="emp-table">
       <thead>
         <tr>
@@ -89,7 +89,7 @@
           <th scope="col">Role</th>
           <th scope="col">Assigned Location's</th>
           <th scope="col">Status</th>
-          <th scope="col">Action</th>
+          <th scope="col" class="emp-col--center">Action</th>
         </tr>
       </thead>
       <tbody>
@@ -113,13 +113,17 @@
                   Edit
                 </button>
                 @if (isAdmin) {
-                  <button
-                    type="button"
-                    class="emp-action emp-action--toggle"
-                    (click)="onToggleActive(emp)"
-                  >
-                    Disable
-                  </button>
+                  @if (emp.active === 0) {
+                    <span class="emp-badge emp-badge--deactivated">Inactive</span>
+                  } @else {
+                    <button
+                      type="button"
+                      class="emp-action emp-action--toggle"
+                      (click)="onToggleActive(emp)"
+                    >
+                      Disable
+                    </button>
+                  }
                 }
               </div>
             </td>
@@ -137,6 +141,19 @@
 
   <!-- ── Pagination ───────────────────────────────────────────────────────── -->
   <div class="emp-pagination">
+    <div class="emp-pagination__size">
+      <label for="emp-page-size">Rows per page</label>
+      <select
+        id="emp-page-size"
+        class="emp-pagination__select"
+        [value]="selectedPageSize()"
+        (change)="onPageSizeChange($any($event.target).value)"
+      >
+        @for (n of pageSizeOptions; track n) {
+          <option [value]="n" [selected]="n === selectedPageSize()">{{ n }}</option>
+        }
+      </select>
+    </div>
     <p class="emp-pagination__info">
       Showing {{ rangeStart() }}–{{ rangeEnd() }} of {{ employees().length }}
     </p>

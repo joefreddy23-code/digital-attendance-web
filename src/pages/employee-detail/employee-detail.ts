@@ -1,12 +1,16 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
+import { Auth } from '../../shared/services/auth/auth';
 import { EmployeesService } from '../../shared/services/employees/employees';
 import {
   AttendanceRecord,
   EmployeeDetail,
 } from '../../shared/utils/interface/employees-response.interface';
 import { apiErrorMessage } from '../../shared/utils/http/api-error-message';
+import { CompOffModal } from '../../shared/components/comp-off-modal/comp-off-modal';
+import { ResultModal } from '../../shared/components/result-modal/result-modal';
+import type { ResultModalVariant } from '../../shared/components/result-modal/result-modal';
 import {
   AttendanceDetailModal,
   AttendanceModalHeader,
@@ -24,6 +28,8 @@ interface AttendanceRow {
   code: string;
   codeClass: string;
   canView: boolean;
+  /** True only for a leave day (L), not present (P) or week-off (WO). */
+  canMarkPresent: boolean;
   raw: AttendanceRecord;
 }
 
@@ -39,7 +45,7 @@ const MONTHS_LONG = [
 
 @Component({
   selector: 'app-employee-detail',
-  imports: [AttendanceDetailModal],
+  imports: [AttendanceDetailModal, CompOffModal, ResultModal],
   templateUrl: './employee-detail.html',
   styleUrl: './employee-detail.css',
 })
@@ -47,6 +53,7 @@ export class EmployeeDetailPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly employeesService = inject(EmployeesService);
+  private readonly auth = inject(Auth);
 
   readonly isLoading = signal(false);
   readonly errorMessage = signal('');
@@ -88,6 +95,25 @@ export class EmployeeDetailPage implements OnInit {
     const path = this.employee()?.profileImgPath?.trim();
     return path ? path : null;
   });
+
+  // ── Mark-as-present modal state ──────────────────────────────────────────
+  readonly markModalOpen = signal(false);
+  readonly markDateLabel = signal('');
+  readonly isMarking = signal(false);
+  readonly markError = signal('');
+  /** yyyy-mm-dd of the leave day being marked present. */
+  private readonly markDate = signal<string | null>(null);
+
+  // Result modal (success / error) shown after the API call.
+  readonly resultModalOpen = signal(false);
+  readonly resultModalVariant = signal<ResultModalVariant>('success');
+  readonly resultModalTitle = signal('');
+  readonly resultModalMessage = signal('');
+  private readonly lastActionSucceeded = signal(false);
+
+  // The query the page was loaded with, reused to refresh after an update.
+  private currentEmployeeId = 0;
+  private currentDate = '';
 
   // ── Derived view data ──────────────────────────────────────────────────
   readonly rows = computed<AttendanceRow[]>(() =>
@@ -140,6 +166,8 @@ export class EmployeeDetailPage implements OnInit {
     // screen is opened directly without one.
     const dateParam = this.route.snapshot.queryParamMap.get('date');
     const date = this.isValidIsoDate(dateParam) ? dateParam! : this.today();
+    this.currentEmployeeId = employeeId;
+    this.currentDate = date;
     this.fetchEmployee(employeeId, date);
   }
 
@@ -191,6 +219,82 @@ export class EmployeeDetailPage implements OnInit {
     this.detailRecord.set(null);
   }
 
+  /** Opens the mark-as-present dialog for a leave day. */
+  onMarkPresent(row: AttendanceRow): void {
+    this.markDate.set(row.date.slice(0, 10));
+    this.markDateLabel.set(this.formatFullDate(row.date));
+    this.markError.set('');
+    this.isMarking.set(false);
+    this.markModalOpen.set(true);
+  }
+
+  onMarkCancel(): void {
+    if (this.isMarking()) return;
+    this.markModalOpen.set(false);
+    this.markDate.set(null);
+    this.markError.set('');
+  }
+
+  /** manualEntry: 1 = manual entry (toggle off, default), 0 = comp-off (toggle on). */
+  onMarkConfirm(manualEntry: 0 | 1): void {
+    const emp = this.employee();
+    const date = this.markDate();
+    if (!emp || !date) return;
+
+    this.isMarking.set(true);
+    this.markError.set('');
+
+    this.employeesService
+      .addCompOff({ empId: emp.id, date, manualEntry })
+      .subscribe({
+        next: (res) => {
+          this.isMarking.set(false);
+          this.markModalOpen.set(false);
+          this.markDate.set(null);
+          if (!res.success) {
+            this.showResultModal(
+              'error',
+              'Cannot mark as present',
+              res.message?.trim() || 'Unable to mark as present.',
+            );
+            return;
+          }
+          this.lastActionSucceeded.set(true);
+          this.showResultModal(
+            'success',
+            'Success',
+            res.message?.trim() || 'Marked as present successfully.',
+          );
+        },
+        error: (err) => {
+          this.isMarking.set(false);
+          this.markModalOpen.set(false);
+          this.markDate.set(null);
+          this.showResultModal('error', 'Cannot mark as present', apiErrorMessage(err));
+        },
+      });
+  }
+
+  private showResultModal(
+    variant: ResultModalVariant,
+    title: string,
+    message: string,
+  ): void {
+    this.resultModalVariant.set(variant);
+    this.resultModalTitle.set(title);
+    this.resultModalMessage.set(message);
+    this.resultModalOpen.set(true);
+  }
+
+  onResultModalClosed(): void {
+    this.resultModalOpen.set(false);
+    // Refresh so the updated day shows as present.
+    if (this.lastActionSucceeded()) {
+      this.lastActionSucceeded.set(false);
+      this.fetchEmployee(this.currentEmployeeId, this.currentDate);
+    }
+  }
+
   /** Falls back to the default user icon when the profile image can't load. */
   onProfileImgError(): void {
     this.profileImgFailed.set(true);
@@ -213,6 +317,7 @@ export class EmployeeDetailPage implements OnInit {
       // API omits isPresent so older rows still behave correctly.
       canView:
         (rec.isPresent === 1 || code === 'P') && !!rec.checkinDatetime,
+      canMarkPresent: code === 'L' && this.auth.getUser()?.empRoleId === 2,
       raw: rec,
     };
   }

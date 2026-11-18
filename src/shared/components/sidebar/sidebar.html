@@ -3,24 +3,22 @@
     <div class="sidebar__brand-expanded">
       <img
         class="sidebar__logo sidebar__logo--full"
-        src="trigentLogoFullLight.png"
+        src="trio_logo_horizontal@3x.png"
         alt="TRIGENT"
       />
-      <p class="sidebar__brand-tag ps-5">Attendance &amp; Compliance</p>
+      <p class="sidebar__brand-tag">Attendance &amp; Compliance</p>
     </div>
   } @else {
     <img
       class="sidebar__logo sidebar__logo--half"
-      src="trigentLogoHalf.png"
+      src="trio_logo_stacked.png"
       alt="TRIGENT"
-      width="36"
-      height="36"
     />
   }
 </div>
 
 <nav class="sidebar__nav" aria-label="Main">
-  @for (item of navItems; track item.path) {
+  @for (item of visibleNavItems; track item.path) {
     <a
       class="sidebar__link"
       [routerLink]="item.path"

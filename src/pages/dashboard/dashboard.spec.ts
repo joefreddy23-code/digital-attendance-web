@@ -43,14 +43,30 @@ describe('Dashboard', () => {
           employeeCount: 0,
         },
       ],
-      supervisorQueries: [
+      exceptionNotes: [
         {
           exceptionId: 8,
           employeeId: 3,
           employeeName: 'Joe Rosario freddy',
+          roleName: 'EMPLOYEE',
           attendanceId: 22,
           issueNote: 'Left early because of personal reasons,',
+          attendanceDate: '2026-09-28',
+          missedCheckIn: 0,
           checkinDatetime: '2026-09-28T04:00:00.000Z',
+          checkinLocCode: 'BLR',
+        },
+        {
+          exceptionId: 9,
+          employeeId: 4,
+          employeeName: 'Absent Person',
+          roleName: 'EMPLOYEE',
+          attendanceId: 23,
+          issueNote: 'Did not check in',
+          attendanceDate: null,
+          missedCheckIn: 1,
+          checkinDatetime: null,
+          checkinLocCode: null,
         },
       ],
     },
@@ -115,7 +131,7 @@ describe('Dashboard', () => {
     expect(text).not.toContain('Needs review today');
   });
 
-  it('should show needs review for role 2 from supervisorQueries and open modal', async () => {
+  it('should show needs review for role 2 from exceptionNotes and open modal', async () => {
     await setup({
       ...baseUser,
       empRoleId: 2,
@@ -124,9 +140,19 @@ describe('Dashboard', () => {
 
     const text = fixture.nativeElement.textContent as string;
     expect(text).toContain('Needs review today');
-    expect(text).toContain('Joe Rosario freddy');
-    expect(text).toContain('Missed checkout');
-    expect(text).not.toContain('Left early because of personal reasons,');
+    // Default tab: Absent / Missed checkin (missedCheckIn === 1)
+    expect(text).toContain('Absent Person');
+    expect(text).not.toContain('Joe Rosario freddy');
+
+    fixture.debugElement
+      .queryAll(By.css('button.overview-review__tab'))[1]
+      .triggerEventHandler('click', {});
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Joe Rosario freddy');
+    expect(fixture.nativeElement.textContent).not.toContain('Absent Person');
+    expect(fixture.nativeElement.textContent).not.toContain(
+      'Left early because of personal reasons,',
+    );
 
     const takeAction = fixture.debugElement.query(
       By.css('button.overview-review__action'),
@@ -140,19 +166,19 @@ describe('Dashboard', () => {
     );
     const modalText = fixture.nativeElement.textContent as string;
     expect(modalText).toContain('Left early because of personal reasons,');
-    expect(modalText).toContain('Checkin date');
-    expect(modalText).toContain('Checkin time');
+    expect(modalText).toContain('Check-in date');
+    expect(modalText).toContain('Check-in time');
     expect(modalText).not.toContain('SUPERVISOR ·');
 
     const closeBtn = fixture.debugElement.query(
-      By.css('button.overview-modal__close'),
+      By.css('button.overview-modal__close-btn'),
     );
     closeBtn.triggerEventHandler('click', {});
     fixture.detectChanges();
     expect(fixture.debugElement.query(By.css('.overview-modal'))).toBeNull();
   });
 
-  it('should show needs review badge 0 when supervisorQueries empty for role 2', async () => {
+  it('should show needs review badge 0 when exceptionNotes empty for role 2', async () => {
     await setup(
       {
         ...baseUser,
@@ -166,7 +192,7 @@ describe('Dashboard', () => {
           totalCheckedIn: 1,
           yettoCheckIn: 17,
           employeesByCity: [],
-          supervisorQueries: [],
+          exceptionNotes: [],
         },
       },
     );
@@ -204,7 +230,7 @@ describe('Dashboard', () => {
     expect(cmp.totalCheckedIn).toBe(0);
     expect(cmp.yettoCheckIn).toBe(0);
     expect(cmp.employeesByCity).toEqual([]);
-    expect(cmp.supervisorQueries).toEqual([]);
+    expect(cmp.exceptionNotes).toEqual([]);
 
     const banner = fixture.debugElement.query(By.css('.overview-error'));
     expect(banner).not.toBeNull();
@@ -225,7 +251,7 @@ describe('Dashboard', () => {
     expect(cmp.totalCheckedIn).toBe(0);
     expect(cmp.yettoCheckIn).toBe(0);
     expect(cmp.employeesByCity).toEqual([]);
-    expect(cmp.supervisorQueries).toEqual([]);
+    expect(cmp.exceptionNotes).toEqual([]);
 
     const banner = fixture.debugElement.query(By.css('.overview-error'));
     expect(banner).not.toBeNull();

@@ -1,0 +1,69 @@
+@if (open()) {
+  <!-- Backdrop -->
+  <div class="com-backdrop" (click)="onCancel()" role="presentation"></div>
+
+  <!-- Dialog -->
+  <div
+    class="com-modal"
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="com-title"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="com-icon">
+      <i class="fa-solid fa-user-check" aria-hidden="true"></i>
+    </div>
+
+    <h2 id="com-title" class="com-title">Mark as present</h2>
+    <p class="com-body">
+      Are you sure you want to mark
+      <strong>{{ employeeName() || 'this employee' }}</strong>
+      as present for the date
+      <strong>{{ dateLabel() }}</strong>?
+    </p>
+
+    <div class="com-toggle-row">
+      <span class="com-toggle-label" [class.com-toggle-label--active]="!isCompOff()">
+        Manual entry
+      </span>
+      <button
+        type="button"
+        class="com-switch"
+        [class.com-switch--on]="isCompOff()"
+        role="switch"
+        [attr.aria-checked]="isCompOff()"
+        aria-label="Comp-off"
+        [disabled]="saving()"
+        (click)="onToggle()"
+      >
+        <span class="com-switch__thumb"></span>
+      </button>
+      <span class="com-toggle-label" [class.com-toggle-label--active]="isCompOff()">
+        Comp-off
+      </span>
+    </div>
+
+    @if (error()) {
+      <p class="com-error" role="alert">{{ error() }}</p>
+    }
+
+    <div class="com-actions">
+      <button
+        type="button"
+        class="com-btn com-btn--cancel"
+        [disabled]="saving()"
+        (click)="onCancel()"
+      >
+        Decline
+      </button>
+      <button
+        type="button"
+        class="com-btn com-btn--confirm"
+        [disabled]="saving()"
+        (click)="onConfirm()"
+      >
+        {{ saving() ? 'Saving…' : 'Accept' }}
+      </button>
+    </div>
+  </div>
+}

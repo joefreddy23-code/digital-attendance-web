@@ -17,9 +17,36 @@ export interface MonthlyAttendanceRequest {
 }
 
 /**
+ * A single per-day attendance cell. The API returns one of these objects under
+ * each day key on a row, e.g. "3 Oct 26": { status: "P", checkinDatetime: … }.
+ *
+ * `status` is a short code:
+ *   - "P"  present
+ *   - "L"  leave
+ *   - "WO" week off
+ *   - "NA" not applicable
+ *   - "-"  no data / outside the working range
+ *
+ * `checkinDatetime` / `checkoutDatetime` are raw timestamps
+ * ("2026-10-03 09:30:00.000000") or null when there is no punch.
+ */
+export interface DayCell {
+  status: string;
+  checkinDatetime: string | null;
+  checkoutDatetime: string | null;
+  /**
+   * Location code where the person checked in that day, e.g. "BLR-1".
+   * Optional: the print template also accepts `checkInLocation` / `locCode`.
+   */
+  checkinLocCode?: string | null;
+  checkInLocation?: string | null;
+  locCode?: string | null;
+}
+
+/**
  * A single report row. Alongside the known fixed fields, each row also carries
- * one dynamic key per day in the range, e.g. "1 Oct 26": "L". Those are
- * captured by the index signature.
+ * one dynamic key per day in the range, e.g. "1 Oct 26": { status: "L", … }.
+ * Those are captured by the index signature as `DayCell` objects.
  */
 export interface MonthlyAttendanceRow {
   EmpNo: number;
@@ -29,11 +56,13 @@ export interface MonthlyAttendanceRow {
   Client: string | null;
   /** Allocated location code(s) for the employee, e.g. "BLR-1, CMB-1". */
   Location: string | null;
+  /** Signature image URL (signed S3 link) or null when none on file. */
+  EmployeeSignature?: string | null;
   Month: string;
   'Total Working Days': string;
   'Days Worked': string;
-  /** Per-day status cells ("1 Oct 26", "2 Oct 26", …) plus any other columns. */
-  [key: string]: string | number | null;
+  /** Per-day cells ("1 Oct 26", …) plus fixed string/number/null columns. */
+  [key: string]: string | number | null | DayCell | undefined;
 }
 
 export interface MonthlyAttendanceResponse {

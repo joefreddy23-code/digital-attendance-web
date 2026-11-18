@@ -41,7 +41,8 @@
 .sidebar__brand-expanded {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: stretch;
+  width: 100%;
   gap: 0.25rem;
   min-width: 0;
 }
@@ -54,9 +55,8 @@
 }
 
 .sidebar__logo--full {
-  height: 1.70rem;
-  width: auto;
-  max-width: 100%;
+  width: 86%;
+  height: auto;
   /* Drop black plate from the light full logo on navy sidebar */
   mix-blend-mode: lighten;
 }
@@ -64,17 +64,19 @@
 .sidebar__brand-tag {
   margin: 0;
   padding-left: 0.1rem;
-  font-size: 0.65rem;
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
   line-height: 1.25;
   color: var(--sidebar-muted);
   white-space: nowrap;
 }
 
 .sidebar__logo--half {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  object-fit: cover;
+  width: 3rem;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  object-position: center;
   mix-blend-mode: lighten;
 }
 

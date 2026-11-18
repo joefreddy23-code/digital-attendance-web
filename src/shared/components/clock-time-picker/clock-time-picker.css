@@ -1,0 +1,158 @@
+:host {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  overflow-y: auto;
+  background: rgba(15, 33, 55, 0.45);
+}
+
+.ctp {
+  width: 17rem;
+  max-width: 100%;
+  margin: auto;
+  overflow: hidden;
+  border-radius: 0.65rem;
+  background: #fff;
+  box-shadow: 0 6px 24px rgba(15, 33, 55, 0.25);
+}
+
+.ctp__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  padding: 1.1rem 1rem 0.9rem;
+  background: #11489c;
+  color: #fff;
+}
+
+.ctp__part {
+  padding: 0 0.1rem;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.55);
+  font: inherit;
+  font-size: 3rem;
+  font-weight: 300;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.ctp__part--active {
+  color: #fff;
+}
+
+.ctp__colon {
+  font-size: 3rem;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.ctp__meridiem-label {
+  margin-left: 0.35rem;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.ctp__body {
+  position: relative;
+  padding: 1rem;
+}
+
+.ctp__face {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  outline: none;
+  touch-action: none;
+  cursor: pointer;
+  user-select: none;
+}
+
+.ctp__face:focus-visible .ctp__dial {
+  stroke: #11489c;
+  stroke-width: 2;
+}
+
+.ctp__dial {
+  fill: #e2e5ea;
+}
+
+.ctp__hand {
+  stroke: #6b7280;
+  stroke-width: 2;
+}
+
+.ctp__bubble {
+  fill: #1f5bb5;
+}
+
+.ctp__pivot {
+  fill: #111827;
+}
+
+.ctp__label {
+  fill: #1f2937;
+  font-size: 15px;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.ctp__label--selected {
+  fill: #fff;
+}
+
+.ctp__ampm {
+  position: absolute;
+  bottom: 0.6rem;
+  width: 2.3rem;
+  height: 2.3rem;
+  border: 0;
+  border-radius: 50%;
+  background: #e2e5ea;
+  color: #1f2937;
+  font: inherit;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ctp__ampm--am {
+  left: 0.6rem;
+}
+
+.ctp__ampm--pm {
+  right: 0.6rem;
+}
+
+.ctp__ampm--active {
+  background: #11489c;
+  color: #fff;
+}
+
+.ctp__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1.25rem;
+  padding: 0.5rem 1.1rem 0.9rem;
+}
+
+.ctp__action {
+  padding: 0.3rem 0.4rem;
+  border: 0;
+  background: transparent;
+  color: #11489c;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.ctp__action:hover {
+  text-decoration: underline;
+}

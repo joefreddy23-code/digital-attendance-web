@@ -70,6 +70,16 @@ export class AttendanceDetailModal {
   /** True when the day was recorded as a compensatory off (compOff === 1). */
   readonly isCompOff = computed(() => this.record()?.compOff === 1);
 
+  /** Badge label for the day: "Comp off", "Manual entry", or null (only one applies). */
+  readonly entryType = computed<string | null>(() =>
+    this.isCompOff() ? 'Comp off' : this.isManualEntry() ? 'Manual entry' : null,
+  );
+
+  /** Name of the person who made the manual entry / comp-off. */
+  readonly approvedByName = computed(() =>
+    this.entryType() ? this.record()?.approvedByName?.trim() || null : null,
+  );
+
   readonly checkInTime = computed(() =>
     this.formatTime(this.record()?.checkinDatetime ?? null),
   );
@@ -92,12 +102,23 @@ export class AttendanceDetailModal {
   });
 
   constructor() {
-    // Reset the photo load/error state whenever a new photo URL is shown, so
-    // the spinner appears again for the next day's selfie instead of carrying
-    // over the previous image's resolved state.
+    // Reset the photo load/error state whenever the shown day's record changes,
+    // so a previous day's "failed/loaded" state never carries over to the next
+    // selfie. The modal component instance is reused across every "View" click
+    // (its content is gated by @if, not recreated), so these signals MUST be
+    // cleared on each new record or a day with no image latches imgFailed and
+    // then hides every subsequent day's valid image.
+    //
+    // The effect keys off record() — NOT photoUrl() — on purpose: photoUrl()
+    // reads imgFailed(), so resetting imgFailed() inside an effect that depends
+    // on photoUrl() would re-trigger the effect in a feedback loop.
     effect(() => {
-      const url = this.photoUrl();
-      this.imgLoading.set(!!url);
+      // Establish the dependency on the current record so this re-runs per day.
+      const rec = this.record();
+      this.imgFailed.set(false);
+      // Show the spinner while a photo is (re)loading; stays false when the day
+      // has no image path at all.
+      this.imgLoading.set(!!rec?.imgSrcPath?.trim());
     });
   }
 

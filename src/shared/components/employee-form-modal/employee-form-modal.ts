@@ -240,11 +240,11 @@ export class EmployeeFormModal {
     }
     this.applyRoleRules(this.selectedRoleId(), false);
 
-    // Employee No, Email and Date of Joining are immutable on edit. Their
-    // values are still submitted because onSubmit() uses getRawValue().
+    // Employee No and Date of Joining are immutable on edit. Their values are
+    // still submitted because onSubmit() uses getRawValue(). Email stays
+    // editable so it can be corrected on edit.
     if (this.isEdit()) {
       this.f.employeeNo.disable({ emitEvent: false });
-      this.f.email.disable({ emitEvent: false });
       this.f.dateOfJoining.disable({ emitEvent: false });
     }
 

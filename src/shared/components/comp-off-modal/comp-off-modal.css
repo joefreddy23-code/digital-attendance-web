@@ -1,0 +1,194 @@
+:host {
+  font-family: 'DM Sans', system-ui, sans-serif;
+}
+
+/* ── Backdrop ── */
+.com-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(15, 33, 55, 0.55);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  animation: com-fade-in 180ms ease both;
+}
+
+/* ── Dialog ── */
+.com-modal {
+  position: fixed;
+  z-index: 100;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(400px, calc(100vw - 2rem));
+  padding: 1.75rem 1.75rem 1.5rem;
+  border-radius: 1rem;
+  background: #ffffff;
+  box-shadow: 0 20px 56px rgba(15, 33, 55, 0.22);
+  text-align: center;
+  animation: com-slide-up 220ms ease both;
+}
+
+/* ── Icon circle ── */
+.com-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  font-size: 1.25rem;
+  margin-bottom: 0.9rem;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+/* ── Copy ── */
+.com-title {
+  margin: 0 0 0.4rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0f2137;
+}
+
+.com-body {
+  margin: 0 0 1.1rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: #6b7280;
+}
+
+/* ── Toggle ── */
+.com-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  margin-bottom: 1.25rem;
+}
+
+.com-toggle-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #9ca3af;
+  transition: color 140ms;
+}
+
+.com-toggle-label--active {
+  color: #0f2137;
+  font-weight: 700;
+}
+
+.com-switch {
+  position: relative;
+  width: 2.75rem;
+  height: 1.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: #cbd5e1;
+  cursor: pointer;
+  transition: background 160ms;
+}
+
+.com-switch--on {
+  background: #1d4ed8;
+}
+
+.com-switch:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.com-switch:focus-visible {
+  outline: 2px solid #1d4ed8;
+  outline-offset: 2px;
+}
+
+.com-switch__thumb {
+  position: absolute;
+  top: 0.15rem;
+  left: 0.15rem;
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(15, 33, 55, 0.3);
+  transition: transform 160ms;
+}
+
+.com-switch--on .com-switch__thumb {
+  transform: translateX(1.25rem);
+}
+
+.com-error {
+  margin: 0 0 1rem;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid rgba(185, 28, 28, 0.25);
+  border-radius: 0.6rem;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: left;
+}
+
+/* ── Buttons ── */
+.com-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
+.com-btn {
+  height: 2.5rem;
+  padding: 0 1.25rem;
+  border-radius: 0.6rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: 0;
+  transition: filter 140ms, background 140ms;
+}
+
+.com-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.com-btn--cancel {
+  background: #ffffff;
+  color: #0f2137;
+  border: 1px solid rgba(15, 33, 55, 0.12);
+  font-weight: 600;
+}
+
+.com-btn--cancel:hover:not(:disabled) {
+  background: #f4f6fa;
+}
+
+.com-btn--confirm {
+  background: #1d4ed8;
+  color: #ffffff;
+}
+
+.com-btn--confirm:hover:not(:disabled) {
+  filter: brightness(0.95);
+}
+
+/* ── Animations ── */
+@keyframes com-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes com-slide-up {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 12px)) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}

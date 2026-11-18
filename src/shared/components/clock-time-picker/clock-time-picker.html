@@ -1,0 +1,87 @@
+<div class="ctp" role="dialog" aria-modal="true" aria-label="Select check-out time">
+  <div class="ctp__header">
+    <button
+      type="button"
+      class="ctp__part"
+      [class.ctp__part--active]="mode() === 'hour'"
+      aria-label="Hour"
+      (click)="setMode('hour')"
+    >{{ hourText() }}</button>
+    <span class="ctp__colon">:</span>
+    <button
+      type="button"
+      class="ctp__part"
+      [class.ctp__part--active]="mode() === 'minute'"
+      aria-label="Minute"
+      (click)="setMode('minute')"
+    >{{ minuteText() }}</button>
+    <span class="ctp__meridiem-label">{{ meridiem() }}</span>
+  </div>
+
+  <div class="ctp__body">
+    <svg
+      class="ctp__face"
+      [attr.viewBox]="'0 0 ' + size + ' ' + size"
+      tabindex="0"
+      role="slider"
+      [attr.aria-label]="mode() === 'hour' ? 'Hour' : 'Minute'"
+      [attr.aria-valuenow]="mode() === 'hour' ? hour() : minute()"
+      [attr.aria-valuemin]="mode() === 'hour' ? 1 : 0"
+      [attr.aria-valuemax]="mode() === 'hour' ? 12 : 59"
+      (pointerdown)="onPointerDown($event)"
+      (pointermove)="onPointerMove($event)"
+      (pointerup)="onPointerUp($event)"
+      (keydown)="onKey($event)"
+    >
+      <circle class="ctp__dial" [attr.cx]="center" [attr.cy]="center" [attr.r]="center" />
+      <line
+        class="ctp__hand"
+        [attr.x1]="center"
+        [attr.y1]="center"
+        [attr.x2]="handEnd().x"
+        [attr.y2]="handEnd().y"
+      />
+      <circle class="ctp__bubble" [attr.cx]="handEnd().x" [attr.cy]="handEnd().y" r="17" />
+      @for (l of labels(); track l.text) {
+        <text
+          class="ctp__label"
+          [class.ctp__label--selected]="
+            isOnLabel() && l.value === (mode() === 'hour' ? hour() : minute())
+          "
+          [attr.x]="l.x"
+          [attr.y]="l.y"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >{{ l.text }}</text>
+      }
+      @if (!isOnLabel()) {
+        <text
+          class="ctp__label ctp__label--selected"
+          [attr.x]="handEnd().x"
+          [attr.y]="handEnd().y"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >{{ bubbleText() }}</text>
+      }
+      <circle class="ctp__pivot" [attr.cx]="center" [attr.cy]="center" r="5" />
+    </svg>
+
+    <button
+      type="button"
+      class="ctp__ampm ctp__ampm--am"
+      [class.ctp__ampm--active]="meridiem() === 'AM'"
+      (click)="setMeridiem('AM')"
+    >AM</button>
+    <button
+      type="button"
+      class="ctp__ampm ctp__ampm--pm"
+      [class.ctp__ampm--active]="meridiem() === 'PM'"
+      (click)="setMeridiem('PM')"
+    >PM</button>
+  </div>
+
+  <div class="ctp__footer">
+    <button type="button" class="ctp__action" (click)="cancel()">Cancel</button>
+    <button type="button" class="ctp__action" (click)="confirm()">OK</button>
+  </div>
+</div>

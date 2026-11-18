@@ -317,6 +317,21 @@
   filter: brightness(0.96);
 }
 
+.rpt-btn--outline {
+  border: 1px solid var(--rpt-accent);
+  background: var(--rpt-card-bg);
+  color: var(--rpt-navy);
+}
+
+.rpt-btn--outline:hover:not(:disabled) {
+  background: rgba(245, 166, 35, 0.12);
+}
+
+.rpt-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .rpt-result__status {
   margin: 0;
   padding: 1rem 1.1rem;
@@ -339,6 +354,60 @@
   color: var(--rpt-muted);
 }
 
+/* ── Results search (client-side name / id filter), hosted in the sheet bar ── */
+.rpt-search__field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 320px;
+}
+
+.rpt-search__input {
+  width: 100%;
+  padding: 0.3rem 1.9rem 0.3rem 0.65rem;
+  border: 1px solid var(--rpt-border);
+  border-radius: 0.5rem;
+  background: var(--rpt-field-bg);
+  font-family: inherit;
+  font-size: 0.8rem;
+  color: var(--rpt-navy);
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+}
+
+.rpt-search__input::placeholder {
+  color: var(--rpt-muted);
+}
+
+.rpt-search__input:focus {
+  border-color: var(--rpt-accent);
+  box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.15);
+}
+
+.rpt-search__clear {
+  position: absolute;
+  right: 0.35rem;
+  display: grid;
+  place-items: center;
+  width: 1.3rem;
+  height: 1.3rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--rpt-muted);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.rpt-search__clear:hover {
+  background: #f4f6fa;
+  color: var(--rpt-navy);
+}
+
 /* ── Sheet card (grey bar + table) ── */
 /* Grows to fill the results view; the bar stays fixed and the table region
    below it scrolls. min-height:0 is required so it can shrink in the flex
@@ -359,20 +428,11 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.5rem 0.9rem;
+  padding: 0.45rem 0.9rem;
   background: #eef1f6;
   border-bottom: 1px solid var(--rpt-border);
   font-size: 0.72rem;
   color: var(--rpt-muted);
-}
-
-.rpt-sheet__name {
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  text-transform: none;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .rpt-sheet__count {

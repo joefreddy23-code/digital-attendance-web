@@ -33,7 +33,12 @@ const ALL = 'All';
 
 @Component({
   selector: 'app-employees',
-  imports: [DatePicker, EmployeeFormModal, ResultModal, DeactivateEmployeeModal],
+  imports: [
+    DatePicker,
+    EmployeeFormModal,
+    ResultModal,
+    DeactivateEmployeeModal,
+  ],
   templateUrl: './employees.html',
   styleUrl: './employees.css',
 })
@@ -52,6 +57,7 @@ export class Employees implements OnInit {
   get isAdmin(): boolean {
     return this.empRoleId === 1;
   }
+
 
   // ── Filters ────────────────────────────────────────────────────────────
   readonly search = signal('');
@@ -118,26 +124,37 @@ export class Employees implements OnInit {
   private readonly deactivateEmployeeId = signal<number | null>(null);
 
   // ── Pagination ───────────────────────────────────────────────────────────
-  readonly pageSize = 6;
+  // Rows-per-page choices; 'All' shows every row on one page.
+  readonly pageSizeOptions: readonly (number | 'All')[] = [10, 20, 50, 100, 200, 'All'];
+  readonly selectedPageSize = signal<number | 'All'>(10);
   readonly currentPage = signal(1);
 
+  // Effective numeric page size (All = total rows, minimum 1).
+  readonly pageSize = computed(() => {
+    const sel = this.selectedPageSize();
+    return sel === 'All' ? Math.max(1, this.employees().length) : sel;
+  });
+
+  // Tables taller than 10 rows scroll inside the table container.
+  readonly scrollable = computed(() => this.pageSize() > 10);
+
   readonly totalPages = computed(() =>
-    Math.max(1, Math.ceil(this.employees().length / this.pageSize)),
+    Math.max(1, Math.ceil(this.employees().length / this.pageSize())),
   );
 
   readonly pagedEmployees = computed(() => {
-    const start = (this.currentPage() - 1) * this.pageSize;
-    return this.employees().slice(start, start + this.pageSize);
+    const start = (this.currentPage() - 1) * this.pageSize();
+    return this.employees().slice(start, start + this.pageSize());
   });
 
   readonly rangeStart = computed(() =>
     this.employees().length === 0
       ? 0
-      : (this.currentPage() - 1) * this.pageSize + 1,
+      : (this.currentPage() - 1) * this.pageSize() + 1,
   );
 
   readonly rangeEnd = computed(() =>
-    Math.min(this.currentPage() * this.pageSize, this.employees().length),
+    Math.min(this.currentPage() * this.pageSize(), this.employees().length),
   );
 
   readonly pages = computed(() =>
@@ -495,7 +512,15 @@ export class Employees implements OnInit {
         next: (res) => {
           this.isDeactivating.set(false);
           if (!res.success) {
-            this.deactivateError.set(
+            // API returned success:false (e.g. the employee is a Supervisor
+            // or Account Manager for others). Close the confirmation dialog
+            // and surface the server's message in the result modal — the same
+            // way the location deactivation flow shows its response.
+            this.deactivateModalOpen.set(false);
+            this.deactivateEmployeeId.set(null);
+            this.showResultModal(
+              'error',
+              'Cannot deactivate',
               res.message?.trim() || 'Unable to deactivate employee.',
             );
             return;
@@ -513,7 +538,11 @@ export class Employees implements OnInit {
         },
         error: (err) => {
           this.isDeactivating.set(false);
-          this.deactivateError.set(apiErrorMessage(err));
+          // Close the confirmation dialog and show the error in the result
+          // modal, consistent with the success path.
+          this.deactivateModalOpen.set(false);
+          this.deactivateEmployeeId.set(null);
+          this.showResultModal('error', 'Cannot deactivate', apiErrorMessage(err));
         },
       });
   }
@@ -543,6 +572,11 @@ export class Employees implements OnInit {
   goToPage(page: number): void {
     if (page < 1 || page > this.totalPages()) return;
     this.currentPage.set(page);
+  }
+
+  onPageSizeChange(value: string): void {
+    this.selectedPageSize.set(value === 'All' ? 'All' : Number(value));
+    this.currentPage.set(1);
   }
 
   prevPage(): void {

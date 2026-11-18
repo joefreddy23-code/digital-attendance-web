@@ -10,9 +10,11 @@ import { ReportsService } from '../../shared/services/reports/reports';
 import { MEDIA_BASE_URL } from '../../shared/utils/config/api.config';
 import { apiErrorMessage } from '../../shared/utils/http/api-error-message';
 import {
+  DayCell,
   MonthlyAttendanceRequest,
   MonthlyAttendanceRow,
 } from '../../shared/utils/interface/reports-response.interface';
+import { buildAttendancePrintHtml } from '../../shared/utils/print/attendance-print-template';
 
 /** A month entry rendered in the Quick links list. */
 interface QuickLink {
@@ -100,6 +102,29 @@ export class Reports implements OnInit {
   readonly reportTitle = signal<string>('');
   /** True once a report has been requested — switches to the results view. */
   readonly showReport = signal<boolean>(false);
+
+  /**
+   * Client-side free-text filter for the results table. Matches against the
+   * employee name (EmpName) and employee id (EmpNo). Empty = show everything.
+   */
+  readonly searchTerm = signal<string>('');
+
+  /**
+   * The rows actually rendered: reportRows() narrowed by the current
+   * searchTerm(). A blank term returns every row. Matching is case-insensitive
+   * and checks both the employee name and the employee id as substrings.
+   */
+  readonly filteredRows = computed<MonthlyAttendanceRow[]>(() => {
+    const term = this.searchTerm().trim().toLowerCase();
+    const rows = this.reportRows();
+    if (!term) return rows;
+
+    return rows.filter((row) => {
+      const name = String(row['EmpName'] ?? '').toLowerCase();
+      const empNo = String(row['EmpNo'] ?? '').toLowerCase();
+      return name.includes(term) || empNo.includes(term);
+    });
+  });
 
   /** True while the .xlsx is being generated/downloaded. */
   readonly downloading = signal<boolean>(false);
@@ -365,7 +390,18 @@ export class Reports implements OnInit {
     this.showReport.set(false);
     this.reportError.set('');
     this.downloadError.set('');
+    this.searchTerm.set('');
     this.activePayload = null;
+  }
+
+  /** Updates the client-side table filter from the search input. */
+  onSearch(value: string): void {
+    this.searchTerm.set(value);
+  }
+
+  /** Clears the client-side table filter. */
+  onClearSearch(): void {
+    this.searchTerm.set('');
   }
 
   /**
@@ -396,10 +432,50 @@ export class Reports implements OnInit {
     const value = row[column];
     if (value === null || value === undefined || value === '') return '—';
 
+    // Per-day cells arrive as objects — show their short status code.
+    if (this.isDayCellValue(value)) {
+      const status = String((value as DayCell).status ?? '').trim();
+      return status || '—';
+    }
+
     // The DOJ comes back as an ISO datetime — show a readable date.
     if (column === 'DOJ') return this.formatDate(String(value));
 
     return String(value);
+  }
+
+  /** True when a cell value is a per-day attendance object. */
+  private isDayCellValue(value: unknown): value is DayCell {
+    return (
+      typeof value === 'object' &&
+      value !== null &&
+      'status' in (value as Record<string, unknown>)
+    );
+  }
+
+  /**
+   * View in PDF — opens a new window containing a print-formatted attendance
+   * sheet for the rows currently shown (respecting the client-side search
+   * filter) and triggers the browser's print dialog, from which the user can
+   * save as PDF.
+   */
+  onViewPdf(): void {
+    const rows = this.filteredRows();
+    if (rows.length === 0) return;
+
+    const html = buildAttendancePrintHtml(rows, this.reportTitle());
+    const win = window.open('', '_blank');
+    if (!win) {
+      this.downloadError.set(
+        'Could not open the print view. Please allow pop-ups for this site and try again.',
+      );
+      return;
+    }
+
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
+    win.focus();
   }
 
   // ── Formatting helpers ─────────────────────────────────────────────────────
@@ -428,6 +504,7 @@ export class Reports implements OnInit {
     this.downloadError.set('');
     this.reportRows.set([]);
     this.reportTitle.set(title);
+    this.searchTerm.set('');
     // Remember the request so Download .xlsx reuses the same filters.
     this.activePayload = { ...payload, generateExcel: false };
 

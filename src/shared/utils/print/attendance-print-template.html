@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<!--
+  Reference HTML structure for the "Daily Attendance" print sheet.
+
+  This file documents the exact markup the print feature generates. The live
+  markup is produced at runtime by buildAttendancePrintHtml() in
+  ./attendance-print-template.ts, which fills in the dynamic values shown below
+  as {{ … }} placeholders.
+
+  Structure: ONE shared table. The header (Sl.No, Name, DAILY ATTENDANCE FOR
+  THE MONTH OF {{Month}}, date numbers, No. of Days, Remarks) is STANDARD and
+  rendered only ONCE. Each employee is a repeating FOUR-row block
+  (Status / Time-in / Time-out / Sig) appended to the single <tbody>.
+
+    ┌──────┬──────┬── DAILY ATTENDANCE FOR THE MONTH OF {{Month}} ──┬ No. of Days ┬─────────┐
+    │ Sl.  │ Name │  1  2  3 … (date number headers)                │ P A L Late  │ Remarks │  ← header, once
+    ├──────┼──────┼─────────────────────────────────────────────────┼─────────────┼─────────┤
+    │      │      │ Status   | per-day P / L / WO / NA / -           │             │         │
+    │  n   │ Name │ Time-in  | per-day check-in, else "-"            │   (blank)   │ (blank) │  ← repeats per employee
+    │      │      │ Time-out | per-day check-out, else "-"           │             │         │
+    │      │      │ Sig      | per-day signature image (P days only) │             │         │
+    └──────┴──────┴─────────────────────────────────────────────────┴─────────────┴─────────┘
+
+  Per-date cell tokens:
+    - Status  : P / L / WO / NA, or "-" when there is no status
+    - Time-in : check-in time in 12-hour form "6:03pm" / "9:30am", or "-"
+    - Time-out: check-out time in 12-hour form "6:03pm" / "9:30am", or "-"
+    - Sig.    : small signature <img> on present (P) days, else blank
+
+  The "No. of Days" counts (Present / Absent / Leave / Late) and "Remarks" are
+  intentionally left EMPTY per requirement.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Daily Attendance {{rangeLabel}}</title>
+    <style>
+      /* See PRINT_CSS in attendance-print-template.ts for the authoritative styles. */
+    </style>
+  </head>
+  <body>
+    <div class="aps-toolbar">
+      <button type="button" class="aps-print-btn" onclick="window.print()">
+        Print / Save as PDF
+      </button>
+    </div>
+
+    <section class="aps-sheet">
+      <table class="aps-table">
+        <!-- ── Standard header: rendered ONCE for the whole report ── -->
+        <thead>
+          <tr class="aps-head-top">
+            <th class="aps-slno" rowspan="2">Emp.<br />No.</th>
+            <th class="aps-name" rowspan="2">Name</th>
+            <!-- blank header over the Status/Time-in/Time-out/Sig row labels so
+                 the body columns line up and no phantom column trails Remarks -->
+            <th class="aps-rowlabel" rowspan="2"></th>
+            <!-- colspan = number of day columns in the selected range -->
+            <th class="aps-month" colspan="{{dayCount}}">
+              DAILY ATTENDANCE FOR THE MONTH OF {{Month}}
+            </th>
+            <th class="aps-days-group" colspan="4">No. of Days</th>
+            <th class="aps-remarks" rowspan="2">Remarks</th>
+          </tr>
+          <tr class="aps-head-dates">
+            <!-- repeated per day: the day number header -->
+            <th class="aps-day">{{dayNumber}}</th>
+            <!-- … -->
+            <th class="aps-count">Present</th>
+            <th class="aps-count">Absent</th>
+            <th class="aps-count">Leave</th>
+            <th class="aps-count">Late</th>
+          </tr>
+        </thead>
+
+        <!-- ── Body: one three-row block PER employee, repeated dynamically ── -->
+        <tbody>
+          <!-- Employee block (repeats for each row in the report) -->
+          <tr class="aps-emp-start">
+            <td class="aps-slno" rowspan="4">{{slNo}}</td>
+            <td class="aps-name" rowspan="4">{{EmpName}}</td>
+            <td class="aps-rowlabel">Status</td>
+            <!-- repeated per day: P / L / WO / NA / - -->
+            <td class="aps-day">{{status}}</td>
+            <!-- No. of Days + Remarks left blank -->
+            <td class="aps-count" rowspan="4"></td>
+            <td class="aps-count" rowspan="4"></td>
+            <td class="aps-count" rowspan="4"></td>
+            <td class="aps-count" rowspan="4"></td>
+            <td class="aps-remarks" rowspan="4"></td>
+          </tr>
+          <tr>
+            <td class="aps-rowlabel">Time-in</td>
+            <!-- repeated per day: check-in time or "-" -->
+            <td class="aps-day">{{timeIn}}</td>
+          </tr>
+          <tr>
+            <td class="aps-rowlabel">Time-out</td>
+            <!-- repeated per day: check-out time or "-" -->
+            <td class="aps-day">{{timeOut}}</td>
+          </tr>
+          <tr>
+            <td class="aps-rowlabel">Sig.</td>
+            <!-- repeated per day: signature image on present (P) days, else blank -->
+            <td class="aps-day aps-sig-cell">
+              <img class="aps-sig-img" src="{{EmployeeSignature}}" alt="sig" />
+            </td>
+          </tr>
+          <!-- … next employee block … -->
+        </tbody>
+      </table>
+    </section>
+  </body>
+</html>

@@ -74,6 +74,8 @@ export interface Employee {
   designationName: string;
   status: string;
   allocatedLocations: string[];
+  /** 1 = active employee, 0 = disabled/deactivated. */
+  active: number;
 }
 
 export interface GetEmployeesResponse {
@@ -158,6 +160,10 @@ export interface AttendanceRecord {
    * panel.
    */
   compOff?: number | null;
+  /** Id of the user who performed the manual entry / comp-off. */
+  approvedBy?: number | null;
+  /** Name of that user; present only when manualEntry or compOff is 1. */
+  approvedByName?: string | null;
 }
 
 export interface GetEmployeeData {
@@ -255,4 +261,31 @@ export interface DeactivateEmployeeResponse {
   success: boolean;
   message?: string;
   employeeId?: number;
+}
+
+// ── Add comp-off ─────────────────────────────────────────────────────────────
+
+export interface AddCompOffRequest {
+  /** Employee id the comp-off is being added for. */
+  empId: number;
+  /** The comp-off date as yyyy-mm-dd. Must be a past date. */
+  date: string;
+  /** 1 = manual entry (toggle off, default), 0 = comp-off (toggle on). */
+  manualEntry: 0 | 1;
+}
+
+export interface AddCompOffData {
+  attendanceId: number;
+  empId: number;
+  approverId: number;
+  date: string;
+  isPresent: number;
+  compOff: number;
+  manualEntry: number;
+}
+
+export interface AddCompOffResponse {
+  success: boolean;
+  message?: string;
+  data?: AddCompOffData;
 }

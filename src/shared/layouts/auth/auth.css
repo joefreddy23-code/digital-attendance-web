@@ -57,15 +57,17 @@
 .auth-brand {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: stretch;
+  width: fit-content;
+  max-width: 100%;
   gap: 0.45rem;
 }
 
 .auth-brand__logo {
   display: block;
-  height: clamp(2.25rem, 4vw, 2.75rem);
-  width: auto;
-  max-width: min(100%, 280px);
+  width: 15.5rem;
+  max-width: 100%;
+  height: auto;
   object-fit: contain;
   object-position: left center;
   /* Drop the asset's black plate on the navy shell; white wordmark + amber mark remain */
@@ -74,6 +76,7 @@
 
 .auth-brand__tagline {
   margin: 0;
+  white-space: nowrap;
   font-size: 0.8125rem;
   line-height: 1.35;
   color: var(--auth-muted);

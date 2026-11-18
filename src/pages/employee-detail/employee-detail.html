@@ -74,6 +74,10 @@
                     <button type="button" class="ed-action" (click)="onViewRow(row)">
                       View
                     </button>
+                  } @else if (row.canMarkPresent) {
+                    <button type="button" class="ed-action" (click)="onMarkPresent(row)">
+                      Mark as present
+                    </button>
                   } @else {
                     <span class="ed-dash">—</span>
                   }
@@ -102,6 +106,25 @@
     [header]="detailHeader()"
     [record]="detailRecord()"
     (close)="onCloseDetail()"
+  />
+
+  <!-- ── Mark as present confirmation ────────────────────────────────────── -->
+  <app-comp-off-modal
+    [open]="markModalOpen()"
+    [employeeName]="employee()?.name ?? ''"
+    [dateLabel]="markDateLabel()"
+    [saving]="isMarking()"
+    [error]="markError()"
+    (confirm)="onMarkConfirm($event)"
+    (cancel)="onMarkCancel()"
+  />
+
+  <app-result-modal
+    [open]="resultModalOpen()"
+    [variant]="resultModalVariant()"
+    [title]="resultModalTitle()"
+    [message]="resultModalMessage()"
+    (closed)="onResultModalClosed()"
   />
 
 </section>

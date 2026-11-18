@@ -20,10 +20,12 @@ export class Overview {
   }
 
   /**
-   * Approves a supervisor exception (missed check-out). The bearer token is
-   * attached by the auth interceptor.
+   * Takes action on a supervisor exception. The bearer token is attached by
+   * the auth interceptor.
    *
-   * POST /web/take-action  { exceptionId, attendanceId }
+   * POST /web/take-action  { exceptionId, attendanceId, checkOutTime, manualEntry }
+   * - Missed check-in (mark as read): checkOutTime null, manualEntry 1.
+   * - Missed check-out (approve): checkOutTime set, manualEntry 0.
    */
   takeAction(payload: TakeActionRequest): Observable<TakeActionResponse> {
     return this.http.post<TakeActionResponse>(

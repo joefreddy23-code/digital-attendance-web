@@ -73,7 +73,7 @@ describe('Auth', () => {
 
     const logo = fixture.debugElement.query(By.css('img.auth-brand__logo'));
     expect(logo).toBeTruthy();
-    expect(logo.nativeElement.getAttribute('src')).toContain('trigentLogoFullLight.png');
+    expect(logo.nativeElement.getAttribute('src')).toContain('trio_logo_horizontal@3x.png');
   });
 
   it('should swap left copy on forgot-password route', async () => {

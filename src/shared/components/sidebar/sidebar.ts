@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
 import { Auth } from '../../services/auth/auth';
+import { isPathAllowedForRole } from '../../guards/auth.guard';
 import { MainLayoutService } from '../../services/main-layout/main-layout';
 
 @Component({
@@ -26,6 +27,10 @@ export class Sidebar {
     { label: 'Reports', path: '/reports', icon: 'fa-clock' },
   ] as const;
 
+  get visibleNavItems() {
+    const roleId = this.auth.getUser()?.empRoleId;
+    return this.navItems.filter((i) => isPathAllowedForRole(roleId, i.path));
+  }
   get displayName(): string {
     return this.auth.getUser()?.empName ?? '-';
   }

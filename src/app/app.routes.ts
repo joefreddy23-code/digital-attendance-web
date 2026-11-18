@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 
-import { authGuard, guestGuard } from '../shared/guards/auth.guard';
+import { authGuard, guestGuard, roleGuard } from '../shared/guards/auth.guard';
 import { Auth } from '../shared/layouts/auth/auth';
 import { Main } from '../shared/layouts/main/main';
 
@@ -51,6 +51,7 @@ export const routes: Routes = [
     path: '',
     component: Main,
     canActivate: [authGuard],
+    canActivateChild: [roleGuard],
     children: [
       { path: 'dashboard', component: Dashboard },
       { path: 'attendance', component: Attendance },

@@ -15,6 +15,8 @@ import {
   UpsertEmployeeResponse,
   DeactivateEmployeeRequest,
   DeactivateEmployeeResponse,
+  AddCompOffRequest,
+  AddCompOffResponse,
 } from '../../utils/interface/employees-response.interface';
 
 @Injectable({
@@ -121,6 +123,20 @@ export class EmployeesService {
   ): Observable<DeactivateEmployeeResponse> {
     return this.http.post<DeactivateEmployeeResponse>(
       API_ENDPOINTS.deactivateEmployee,
+      payload,
+    );
+  }
+
+  /**
+   * Adds a compensatory off (comp-off) for an employee on a past date. Only
+   * available when the employee's status is on leave ("L"). The bearer token
+   * is attached by the auth interceptor.
+   *
+   * POST /web/add-compoff  { empId, date }
+   */
+  addCompOff(payload: AddCompOffRequest): Observable<AddCompOffResponse> {
+    return this.http.post<AddCompOffResponse>(
+      API_ENDPOINTS.addCompOff,
       payload,
     );
   }

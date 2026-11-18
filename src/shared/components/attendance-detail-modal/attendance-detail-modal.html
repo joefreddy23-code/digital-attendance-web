@@ -15,6 +15,14 @@
       <div class="adm-head__info">
         <h2 id="adm-title" class="adm-title">{{ titleLine() }}</h2>
         <p class="adm-meta">{{ metaLine() }}</p>
+        @if (entryType(); as type) {
+          <p class="adm-entry">
+            <span class="adm-badge" [class.adm-badge--compoff]="isCompOff()">{{ type }}</span>
+            @if (approvedByName(); as name) {
+              <span class="adm-entry__by"> - Approved by <strong>{{ name }}</strong></span>
+            }
+          </p>
+        }
       </div>
       <button type="button" class="adm-close" (click)="onClose()">Close</button>
     </div>
@@ -26,9 +34,6 @@
         <div class="adm-panel__head">
           <span class="adm-panel__label">CHECK-IN</span>
           <span class="adm-panel__head-right">
-            @if (isCompOff()) {
-              <span class="adm-badge adm-badge--compoff">Comp off</span>
-            }
             <span class="adm-panel__time">{{ checkInTime() }}</span>
           </span>
         </div>
@@ -79,9 +84,6 @@
         <div class="adm-panel__head">
           <span class="adm-panel__label">CHECK-OUT</span>
           <span class="adm-panel__head-right">
-            @if (isManualEntry()) {
-              <span class="adm-badge">Manual entry</span>
-            }
             <span class="adm-panel__time">
               {{ hasCheckOut() ? checkOutTime() : '—' }}
             </span>

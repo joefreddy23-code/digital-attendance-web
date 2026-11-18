@@ -282,3 +282,18 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Entry-type badge + who performed it, under the header meta line. */
+.adm-entry {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0 0;
+  font-size: 0.82rem;
+  color: var(--adm-muted);
+}
+
+.adm-entry__by strong {
+  color: var(--adm-navy);
+  font-weight: 600;
+}
