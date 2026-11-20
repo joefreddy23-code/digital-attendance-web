@@ -1,6 +1,7 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 
+import { SearchableSelect } from '../../shared/components/searchable-select/searchable-select';
 import { DatePicker } from '../../shared/components/date-picker/date-picker';
 import {
   EmployeeFormInitial,
@@ -35,6 +36,7 @@ const ALL = 'All';
   selector: 'app-employees',
   imports: [
     DatePicker,
+    SearchableSelect,
     EmployeeFormModal,
     ResultModal,
     DeactivateEmployeeModal,

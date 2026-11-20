@@ -1,0 +1,42 @@
+<div class="ss">
+  <button
+    type="button"
+    class="ss__trigger"
+    [class.ss__trigger--open]="isOpen()"
+    [attr.id]="inputId() || null"
+    aria-haspopup="listbox"
+    [attr.aria-expanded]="isOpen()"
+    [title]="selectedLabel()"
+    (click)="toggle()"
+  >
+    <span class="ss__value">{{ selectedLabel() }}</span>
+    <i class="fa-solid fa-chevron-down ss__icon" aria-hidden="true"></i>
+  </button>
+  @if (isOpen()) {
+    <div class="ss__popup">
+      <input
+        type="text"
+        class="ss__search"
+        [placeholder]="placeholder()"
+        [value]="query()"
+        (input)="query.set($any($event.target).value)"
+        (keydown.enter)="filtered().length && select(filtered()[0])"
+      />
+      <ul class="ss__list" role="listbox">
+        @for (opt of filtered(); track opt.value) {
+          <li
+            class="ss__option"
+            role="option"
+            [class.ss__option--active]="opt.value === value()"
+            [attr.aria-selected]="opt.value === value()"
+            (click)="select(opt)"
+          >
+            {{ opt.label }}
+          </li>
+        } @empty {
+          <li class="ss__empty">No matches found.</li>
+        }
+      </ul>
+    </div>
+  }
+</div>

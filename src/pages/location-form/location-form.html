@@ -56,7 +56,7 @@
             @if (f['name'].invalid && f['name'].touched) {
               <span class="lf-field__err">
                 @if (f['name'].errors?.['required']) { Location name is required. }
-                @else if (f['name'].errors?.['maxlength']) { Maximum 100 characters. }
+                @else if (f['name'].errors?.['maxlength']) { Maximum 1000 characters. }
               </span>
             }
           </div>

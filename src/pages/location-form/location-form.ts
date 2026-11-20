@@ -28,7 +28,7 @@ export class LocationForm implements OnInit {
 
   form = this.fb.group({
     code: ['', [Validators.required, Validators.maxLength(20)]],
-    name: ['', [Validators.required, Validators.maxLength(100)]],
+    name: ['', [Validators.required, Validators.maxLength(1000)]],
     city: ['', [Validators.required, Validators.maxLength(60)]],
     radiusInMeters: [
       null as number | null,

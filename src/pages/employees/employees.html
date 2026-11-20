@@ -25,19 +25,14 @@
 
       <div class="emp-field">
         <label class="emp-field__label" for="emp-location">Location</label>
-        <div class="emp-field__select-wrap">
-          <select
-            id="emp-location"
-            class="emp-field__select"
-            [value]="location()"
-            (change)="location.set($any($event.target).value)"
-          >
-            @for (opt of locationOptions(); track opt.value) {
-              <option [value]="opt.value">{{ opt.label }}</option>
-            }
-          </select>
-          <i class="fa-solid fa-chevron-down emp-field__caret" aria-hidden="true"></i>
-        </div>
+        <app-searchable-select
+          inputId="emp-location"
+          class="emp-field__loc"
+          placeholder="Search location"
+          [options]="locationOptions()"
+          [value]="location()"
+          (valueChange)="location.set($event)"
+        />
       </div>
 
       <div class="emp-field">

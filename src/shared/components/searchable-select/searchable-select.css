@@ -1,0 +1,100 @@
+:host {
+  display: block;
+  font-family: inherit;
+}
+.ss {
+  position: relative;
+}
+.ss__trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  height: 2.5rem;
+  padding: 0 0.75rem;
+  border: 1px solid rgba(15, 33, 55, 0.1);
+  border-radius: 0.6rem;
+  background: #fff;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: #0f2137;
+  text-align: left;
+  cursor: pointer;
+}
+.ss__trigger--open,
+.ss__trigger:focus-visible {
+  border-color: #f5a623;
+  box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.15);
+  outline: none;
+}
+.ss__value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ss__icon {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  color: #6b7280;
+}
+.ss__popup {
+  position: absolute;
+  z-index: 60;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  width: max(100%, 280px);
+  max-width: min(360px, calc(100vw - 2rem));
+  padding: 0.5rem;
+  border: 1px solid rgba(15, 33, 55, 0.1);
+  border-radius: 0.75rem;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(15, 33, 55, 0.15);
+}
+.ss__search {
+  width: 100%;
+  height: 2.2rem;
+  padding: 0 0.65rem;
+  border: 1px solid rgba(15, 33, 55, 0.15);
+  border-radius: 0.5rem;
+  font-family: inherit;
+  font-size: 0.88rem;
+  outline: none;
+}
+.ss__search:focus {
+  border-color: #f5a623;
+  box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.15);
+}
+.ss__list {
+  max-height: 14rem;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+.ss__option {
+  padding: 0.45rem 0.55rem;
+  border-radius: 0.4rem;
+  font-size: 0.86rem;
+  color: #0f2137;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+.ss__option + .ss__option {
+  border-top: 1px solid rgba(15, 33, 55, 0.1);
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+.ss__option:hover {
+  background: #f1f4f9;
+}
+.ss__option--active {
+  background: rgba(245, 166, 35, 0.15);
+  font-weight: 600;
+}
+.ss__empty {
+  padding: 0.5rem 0.55rem;
+  font-size: 0.86rem;
+  color: #6b7280;
+}

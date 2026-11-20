@@ -58,7 +58,7 @@
             [attr.aria-selected]="isMissedCheckInTab"
             (click)="setTab('missedCheckIn')"
           >
-            Absent / Missed checkin
+            Absent / Missed Check-In
             @if (missedCheckInCount > 0) {
               <span class="overview-review__tab-count">{{ missedCheckInCount }}</span>
             }
@@ -71,7 +71,7 @@
             [attr.aria-selected]="!isMissedCheckInTab"
             (click)="setTab('missedCheckout')"
           >
-            Missed checkout
+            Missed Check-Out
             @if (missedCheckoutCount > 0) {
               <span class="overview-review__tab-count">{{ missedCheckoutCount }}</span>
             }
@@ -127,7 +127,7 @@
     <div class="overview-modal__header">
       <div class="overview-modal__header-top">
         <h2 id="overview-modal-title" class="overview-modal__title">
-          {{ isMissedCheckInTab ? 'Absent / Missed check-ins' : 'Missed check-outs' }} · supervisor notes
+          {{ isMissedCheckInTab ? 'Absent / Missed Check-In' : 'Missed Check-out' }} · supervisor notes
         </h2>
         <button
           type="button"
