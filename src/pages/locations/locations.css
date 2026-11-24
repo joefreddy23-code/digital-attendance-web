@@ -130,8 +130,33 @@
   gap: 0.3rem;
 }
 
+.locs-card__meta {
+  margin: 0.35rem 0 0;
+  font-size: 0.88rem;
+  color: var(--locs-muted);
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
 .locs-card__dot {
   color: var(--locs-muted);
+}
+
+/* Highlighted radius pill */
+.locs-card__radius {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem 0.6rem;
+  border-radius: 999px;
+  background: #e8f0fe;
+  border: 1px solid #aecbfa;
+  color: #1a56db;
+  font-weight: 600;
+  font-size: 0.8rem;
+  line-height: 1.4;
 }
 
 /* ── Card action links ── */

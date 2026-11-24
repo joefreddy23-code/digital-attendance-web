@@ -12,6 +12,8 @@ import {
 export interface MultiSelectOption {
   value: number;
   label: string;
+  /** Optional leading text rendered in bold before the label. */
+  prefix?: string;
 }
 
 /**

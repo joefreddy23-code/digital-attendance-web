@@ -159,9 +159,24 @@ export class Employees implements OnInit {
     Math.min(this.currentPage() * this.pageSize(), this.employees().length),
   );
 
-  readonly pages = computed(() =>
-    Array.from({ length: this.totalPages() }, (_, i) => i + 1),
-  );
+  // Page items: numbers, or 'ellipsis' for a gap. Shows first 3 + last 3 near
+  // either end; otherwise first, current +/- 1, last.
+  readonly pages = computed<(number | 'ellipsis')[]>(() => {
+    const total = this.totalPages();
+    const cur = this.currentPage();
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+    if (cur <= 2 || cur >= total - 1) {
+      return [1, 2, 3, 'ellipsis', total - 2, total - 1, total];
+    }
+    const start = Math.max(2, cur - 1);
+    const end = Math.min(total - 1, cur + 1);
+    const items: (number | 'ellipsis')[] = [1];
+    if (start > 2) items.push('ellipsis');
+    for (let p = start; p <= end; p++) items.push(p);
+    if (end < total - 1) items.push('ellipsis');
+    items.push(total);
+    return items;
+  });
 
   // ── Lifecycle ──────────────────────────────────────────────────────────
   ngOnInit(): void {

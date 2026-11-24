@@ -162,16 +162,19 @@
       >
         <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
       </button>
-
-      @for (p of pages(); track p) {
-        <button
-          type="button"
-          class="emp-page"
-          [class.emp-page--active]="p === currentPage()"
-          (click)="goToPage(p)"
-        >
-          {{ p }}
-        </button>
+      @for (p of pages(); track $index) {
+        @if (p === 'ellipsis') {
+          <span class="emp-page-ellipsis" aria-hidden="true">&hellip;</span>
+        } @else {
+          <button
+            type="button"
+            class="emp-page"
+            [class.emp-page--active]="p === currentPage()"
+            (click)="goToPage(p)"
+          >
+            {{ p }}
+          </button>
+        }
       }
 
       <button

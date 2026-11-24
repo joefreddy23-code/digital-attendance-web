@@ -36,12 +36,11 @@
             <i class="fa-solid fa-location-dot locs-card__pin" aria-hidden="true"></i>
             <h2 class="locs-card__title">{{ loc.code }} — {{ loc.clientName }} Site</h2>
           </div>
-          <p class="locs-card__detail">
-            {{ loc.name }}
+          <p class="locs-card__detail">{{ loc.name }}</p>
+          <p class="locs-card__meta">
+            <span class="locs-card__radius">Allowed attendance area: {{ formatRadius(loc.radiusInMeters) }}</span>
             <span class="locs-card__dot" aria-hidden="true">·</span>
-            Allowed attendance area {{ formatRadius(loc.radiusInMeters) }}
-            <span class="locs-card__dot" aria-hidden="true">·</span>
-            {{ loc.totalemployeeCount }} people
+            <span class="locs-card__members">{{ loc.totalemployeeCount }} people</span>
           </p>
 
           @if (isAdmin) {

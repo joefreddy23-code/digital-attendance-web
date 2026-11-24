@@ -460,3 +460,10 @@
   display: block;
   width: 150px;
 }
+
+.emp-page-ellipsis {
+  min-width: 2rem;
+  text-align: center;
+  color: var(--emp-muted);
+  user-select: none;
+}

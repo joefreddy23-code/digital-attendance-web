@@ -40,7 +40,7 @@
                   [checked]="isChecked(opt.value)"
                   (change)="onOptionToggle(opt.value)"
                 />
-                <span class="ms__label">{{ opt.label }}</span>
+                <span class="ms__label">@if (opt.prefix) {<strong>{{ opt.prefix }}</strong> - }{{ opt.label }}</span>
               </label>
             }
           </div>

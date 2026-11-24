@@ -327,9 +327,8 @@ export class Reports implements OnInit {
         this.locationOptions.set(
           locations.map((l) => ({
             value: l.locationId,
-            label: l.locationCode
-              ? `${l.locationName} (${l.locationCode})`
-              : l.locationName,
+            label: l.locationName,
+            prefix: l.locationCode || undefined,
           })),
         );
 
