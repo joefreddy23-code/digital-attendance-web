@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 
 import { API_ENDPOINTS } from '../../utils/config/api.config';
+import { AnalyticsService } from '../analytics/analytics';
 import {
   ChangePasswordRequest,
   ForgotPasswordRequest,
@@ -25,6 +26,7 @@ const USER_KEY = 'auth_user';
 export class Auth {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+  private readonly analytics = inject(AnalyticsService);
 
   login(payload: LoginRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(API_ENDPOINTS.login, payload);
@@ -67,11 +69,14 @@ export class Auth {
   saveSession(data: LoginUserData): void {
     localStorage.setItem(TOKEN_KEY, data.token);
     localStorage.setItem(USER_KEY, JSON.stringify(data));
+    this.analytics.setUser(data);
+    this.analytics.logEvent('login');
   }
 
   clearSession(): void {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
+    this.analytics.clearUser();
   }
 
   getToken(): string | null {
@@ -95,7 +100,10 @@ export class Auth {
   }
 
   logout(): void {
+    this.analytics.logEvent('logout');
+    this.analytics.clearUser();
     localStorage.clear();
     void this.router.navigateByUrl('/login');
   }
 }
+
